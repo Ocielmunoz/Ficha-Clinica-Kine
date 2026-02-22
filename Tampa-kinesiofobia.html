@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionarios - TSK-11</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .version-tag {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #95a5a6;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 35px;
+            font-size: 16px;
+        }
+        .patient-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+        .input-group input {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+        .instrucciones {
+            background-color: #f4ecf7;
+            color: #6c3483;
+            padding: 15px;
+            border-left: 5px solid #8e44ad;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .question-block {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        .question-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.1em;
+            border-left: 4px solid #8e44ad;
+            padding-left: 12px;
+        }
+        .likert-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        .likert-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            padding: 12px 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+        .likert-label:hover {
+            background-color: #f5eef8;
+            border-color: #d2b4de;
+        }
+        .likert-label input[type="radio"] {
+            margin-bottom: 8px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        /* Contenedor de Resultados */
+        #resultado-container {
+            margin-top: 30px;
+            display: none;
+            page-break-inside: avoid;
+        }
+        .resultado-box {
+            padding: 25px;
+            background-color: #f5eef8;
+            border-radius: 8px 8px 0 0;
+            border-left: 6px solid #8e44ad;
+            text-align: center;
+        }
+        .resultado-box h3 {
+            margin-top: 0;
+            color: #4a235a;
+            font-size: 24px;
+        }
+        .interpretation-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+            border-top: none;
+        }
+        .interpretation-table th, .interpretation-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .interpretation-table th {
+            background-color: #4a235a;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        /* Clases Dinámicas de Resaltado */
+        .nivel-bajo { background-color: #d5f5e3 !important; color: #1e8449; font-weight: bold; }
+        .nivel-moderado { background-color: #fcf3cf !important; color: #b7950b; font-weight: bold; }
+        .nivel-alto { background-color: #fadbd8 !important; color: #b03a2e; font-weight: bold; }
+
+        .clinica-note {
+            margin-top: 15px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        button {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .btn-calc { background-color: #8e44ad; }
+        .btn-calc:hover { background-color: #732d91; }
+        .btn-pdf { background-color: #27ae60; display: none; }
+        .btn-print { background-color: #7f8c8d; display: none; }
+
+        @media (max-width: 768px) {
+            .likert-grid { grid-template-columns: 1fr; gap: 8px; }
+            .likert-label { flex-direction: row; text-align: left; }
+            .likert-label input[type="radio"] { margin-bottom: 0; margin-right: 15px; }
+        }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
+            .actions, .version-tag { display: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="documento-area">
+    <div class="version-tag">Creado por Ociel Munoz - TSK11 v1</div>
+    <h1>Escala de Tampa para Kinesiofobia (TSK-11)</h1>
+    <div class="subtitle">Evaluación del Miedo al Movimiento y a la Re-lesión</div>
+    
+    <div class="patient-info">
+        <div class="input-group">
+            <label>Nombre y Apellido</label>
+            <input type="text" id="nombrePaciente" placeholder="Nombre completo">
+        </div>
+        <div class="input-group">
+            <label>Fecha de Evaluación</label>
+            <input type="date" id="fechaEval">
+        </div>
+    </div>
+
+    <div class="instrucciones">
+        <strong>Instrucciones:</strong> A continuación encontrará una serie de afirmaciones que otros pacientes han hecho sobre su dolor. Por favor, lea cada una y marque el grado en el que usted está de acuerdo o en desacuerdo con ella basándose en cómo se siente <strong>ahora mismo</strong>.
+    </div>
+
+    <div id="cuestionario-container"></div>
+
+    <div id="resultado-container">
+        <div class="resultado-box">
+            <h3 id="res-score">Puntuación: 0 / 44</h3>
+            <p id="res-texto" style="margin-bottom:0; font-size:1.1em;"></p>
+        </div>
+        
+        <table class="interpretation-table">
+            <thead>
+                <tr>
+                    <th>Puntuación</th>
+                    <th>Nivel de Kinesiofobia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="fila-baja">
+                    <td>11 - 22 puntos</td>
+                    <td>Baja (Comportamiento adaptativo)</td>
+                </tr>
+                <tr id="fila-media">
+                    <td>23 - 33 puntos</td>
+                    <td>Moderada</td>
+                </tr>
+                <tr id="fila-alta">
+                    <td>34 - 44 puntos</td>
+                    <td>Alta (Riesgo de persistencia y evitación)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="clinica-note">
+            Nota: Puntuaciones elevadas sugieren la necesidad de implementar estrategias de exposición gradual al movimiento y educación en neurociencia del dolor antes de progresar a cargas mecánicas altas.
+        </div>
+    </div>
+
+    <div class="actions" id="seccion-botones">
+        <button class="btn-calc" onclick="calcular()">Calcular Nivel</button>
+        <button class="btn-pdf" id="btnDescargar" onclick="guardarPDF()">Descargar PDF</button>
+        <button class="btn-print" id="btnImprimir" onclick="window.print()">Imprimir / Guardar como PDF</button>
+    </div>
+</div>
+
+<script>
+    const preguntas = [
+        "1. Tengo miedo de lesionarme si hago ejercicio.",
+        "2. Si superase el miedo que me da moverme, estaría mejor.",
+        "3. Mi cuerpo me avisa de que tengo un problema cuando me duele.",
+        "4. Mi dolor me indicaría cuándo debo parar de hacer ejercicio o moverme.",
+        "5. Las personas con mi problema médico no deberían hacer trabajo físico pesado.",
+        "6. A causa de mi problema, tengo miedo de que pueda lesionarme si hago ejercicio sin supervisión.",
+        "7. Por mi problema, creo que es peligroso para mí realizar actividad física.",
+        "8. No puedo hacer todas las cosas que la gente normal hace a causa de mi problema médico.",
+        "9. Tengo miedo de lesionarme sin querer.",
+        "10. Nadie debería tener que hacer ejercicio físico cuando tiene dolor.",
+        "11. Es más seguro para mí no hacer nada que arriesgarme a hacer un esfuerzo."
+    ];
+
+    const opciones = [
+        { texto: "Totalmente en desacuerdo", valor: 1 },
+        { texto: "En desacuerdo", valor: 2 },
+        { texto: "De acuerdo", valor: 3 },
+        { texto: "Totalmente de acuerdo", valor: 4 }
+    ];
+
+    const container = document.getElementById('cuestionario-container');
+    document.getElementById('fechaEval').valueAsDate = new Date();
+
+    function render() {
+        preguntas.forEach((q, i) => {
+            let div = document.createElement('div');
+            div.className = 'question-block';
+            
+            let html = `<div class="question-title">${q}</div><div class="likert-grid">`;
+            
+            opciones.forEach((opt, j) => {
+                html += `
+                    <label class="likert-label">
+                        <input type="radio" name="q${i}" value="${opt.valor}">
+                        ${opt.texto}
+                    </label>
+                `;
+            });
+            
+            html += `</div>`;
+            div.innerHTML = html;
+            container.appendChild(div);
+        });
+    }
+
+    function calcular() {
+        let score = 0;
+        let count = 0;
+
+        for(let i = 0; i < preguntas.length; i++) {
+            let sel = document.querySelector(`input[name="q${i}"]:checked`);
+            if (sel) {
+                score += parseInt(sel.value);
+                count++;
+            }
+        }
+
+        if (count < 11) {
+            alert("Por favor, responda las 11 afirmaciones para obtener un resultado válido.");
+            return;
+        }
+
+        // Limpiar filas de la tabla
+        document.getElementById('fila-baja').classList.remove('nivel-bajo');
+        document.getElementById('fila-media').classList.remove('nivel-moderado');
+        document.getElementById('fila-alta').classList.remove('nivel-alto');
+
+        let textoInter = "";
+        
+        if (score <= 22) {
+            textoInter = "Kinesiofobia Baja";
+            document.getElementById('fila-baja').classList.add('nivel-bajo');
+        } else if (score <= 33) {
+            textoInter = "Kinesiofobia Moderada";
+            document.getElementById('fila-media').classList.add('nivel-moderado');
+        } else {
+            textoInter = "Kinesiofobia Alta";
+            document.getElementById('fila-alta').classList.add('nivel-alto');
+        }
+
+        document.getElementById('res-score').innerText = `Puntuación Total: ${score} / 44`;
+        document.getElementById('res-texto').innerHTML = `<strong>Diagnóstico Psicosocial:</strong> ${textoInter}`;
+
+        const resContainer = document.getElementById('resultado-container');
+        resContainer.style.display = "block";
+        document.getElementById('btnDescargar').style.display = "block";
+        document.getElementById('btnImprimir').style.display = "block";
+        
+        resContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    async function guardarPDF() {
+        window.scrollTo(0, 0);
+
+        const nombre = document.getElementById('nombrePaciente').value.trim() || "paciente";
+        const fecha = document.getElementById('fechaEval').value;
+        const filename = `${fecha}_tsk11_${nombre.toLowerCase().replace(/\s+/g, '')}.pdf`;
+        
+        const element = document.getElementById('documento-area');
+        const buttons = document.getElementById('seccion-botones');
+        buttons.style.display = 'none';
+
+        const opt = {
+            margin: [15, 15, 15, 15],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, scrollY: 0, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } catch (e) {
+            console.error("PDF Error:", e);
+            alert("Error al generar el PDF. Por favor, usa el botón 'Imprimir / Guardar como PDF'.");
+        } finally {
+            buttons.style.display = 'flex';
+        }
+    }
+
+    render();
+</script>
+
+</body>
+</html>
