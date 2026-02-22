@@ -3,588 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index.html</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Repositorio Clínico - Fisioterapia</title>
     <style>
-        @media print { .no-print { display: none; } body { background-color: white; } .max-w-6xl { box-shadow: none; border: none; width: 100%; } }
-        textarea { resize: none; overflow: hidden; min-height: 38px; transition: all 0.2s; }
-        .cif-input { width: 35px; text-align: center; border-bottom: 2px solid #cbd5e1; font-weight: bold; color: #1e40af; background: transparent; font-size: 10px;}
-        .section-card { border-top: 4px solid #3b82f6; margin-bottom: 1.5rem; }
-        
-        .body-chart-container { display: flex; flex-col md:flex-row; justify-content: space-around; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; gap: 20px;}
-        .img-wrapper { position: relative; display: inline-block; width: 100%; max-w: 250px; margin: 0 auto; cursor: crosshair; }
-        .img-wrapper svg, .img-wrapper img { width: 100%; height: auto; border-radius: 8px; opacity: 0.9; pointer-events: none; }
-        
-        .pain-marker { position: absolute; width: 14px; height: 14px; border-radius: 50%; cursor: pointer; transform: translate(-50%, -50%); border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.4); transition: transform 0.1s;}
-        .pain-marker:hover { transform: translate(-50%, -50%) scale(1.3); }
-        .marker-local { background-color: #ef4444; } 
-        .marker-irradiado { background-color: #3b82f6; } 
-        .color-selector input[type="radio"]:checked + span { outline: 2px solid #1e293b; font-weight: bold; transform: scale(1.05); display: inline-block;}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #2c3e50;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+        header p {
+            margin: 10px 0 0;
+            color: #bdc3c7;
+            font-size: 1.1em;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .grid-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-top: 5px solid #3498db;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        /* Colores de borde superior según categoría */
+        .card.lumbar { border-top-color: #3498db; }
+        .card.cervical { border-top-color: #e67e22; }
+        .card.psico { border-top-color: #8e44ad; }
+        .card.triaje { border-top-color: #e74c3c; }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .card-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin: 0;
+            color: #2c3e50;
+        }
+        .badge {
+            font-size: 0.75em;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge.lumbar { background: #ebf5fb; color: #2980b9; }
+        .badge.cervical { background: #fdf2e9; color: #d35400; }
+        .badge.psico { background: #f5eef8; color: #732d91; }
+        .badge.triaje { background: #fadbd8; color: #c0392b; }
+
+        .card-desc {
+            color: #7f8c8d;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+        .clinical-use {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #bdc3c7;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        .clinical-use strong {
+            display: block;
+            color: #34495e;
+            margin-bottom: 5px;
+            font-size: 1.05em;
+        }
+        .btn {
+            display: block;
+            text-align: center;
+            background-color: #2c3e50;
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background-color: #1a252f;
+        }
+        .btn-lumbar:hover { background-color: #2980b9; }
+        .btn-cervical:hover { background-color: #d35400; }
+        .btn-psico:hover { background-color: #732d91; }
+        .btn-triaje:hover { background-color: #c0392b; }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen p-2 md:p-6 font-sans text-slate-900">
+<body>
 
-    <div class="max-w-6xl mx-auto bg-white shadow-2xl rounded-xl overflow-hidden border border-slate-300">
-        
-        <header class="bg-slate-900 text-white p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b-4 border-blue-500">
-            <div>
-                <h1 class="text-2xl font-bold uppercase tracking-tighter text-blue-400">Ficha Clínica Kinesiológica v21</h1>
-                <p class="text-slate-400 text-xs italic">Exportación Inteligente | PDF Auto-Renombrado | Fecha Nacimiento</p>
+<header>
+    <h1>Repositorio de Medidas de Resultado Clínico</h1>
+    <p>Herramientas validadas para Kinesiología</p>
+</header>
+
+<div class="container">
+    <div class="grid-dashboard">
+
+        <div class="card triaje">
+            <div class="card-header">
+                <h2 class="card-title">STarT Back Tool</h2>
+                <span class="badge triaje">Triaje Inicial</span>
             </div>
-            <div class="flex gap-2 flex-wrap justify-end no-print">
-                <button onclick="exportToCSV()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 shadow-lg">⬇️ Exportar Backup Total (CSV)</button>
-                <button onclick="clearData()" class="bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-600 transition">Resetear Ficha</button>
-                <button onclick="savePDF()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 shadow-lg">Guardar PDF</button>
+            <div class="card-desc">
+                Herramienta de estratificación de riesgo biopsicosocial de la Universidad de Keele.
             </div>
-        </header>
+            <div class="clinical-use">
+                <strong>Cuándo aplicarla:</strong>
+                En la <em>primera sesión</em> de evaluación de todo paciente con dolor lumbar inespecífico (agudo o subagudo). Se utiliza para hacer triaje clínico, predecir el riesgo de cronicidad y decidir si el paciente requiere terapia física básica o un abordaje psicológicamente informado.
+            </div>
+            <a href="start-back.html" target="_blank" class="btn btn-triaje">Abrir Cuestionario</a>
+        </div>
 
-        <form id="kineForm" class="p-4 md:p-8 space-y-6">
-            
-            <section class="section-card bg-slate-50 p-6 rounded-lg shadow-sm">
-                <h2 class="text-xl font-bold uppercase text-blue-800 mb-4 border-b pb-2">1. Demografía y Triage</h2>
-                <div class="grid grid-cols-2 md:grid-cols-7 gap-4">
-                    <div class="col-span-2"><label class="text-[10px] font-black text-slate-500 uppercase">Paciente</label><input type="text" id="nombre" class="w-full border-b border-slate-300 p-1 bg-transparent outline-none"></div>
-                    <div class="col-span-1"><label class="text-[10px] font-black text-slate-500 uppercase">RUT</label><input type="text" id="rut" class="w-full border-b border-slate-300 p-1 bg-transparent outline-none"></div>
-                    <div class="col-span-1"><label class="text-[10px] font-black text-slate-500 uppercase">Fecha Nac.</label><input type="date" id="fecha_nac" class="w-full border-b border-slate-300 p-1 bg-transparent outline-none text-xs"></div>
-                    <div class="col-span-1"><label class="text-[10px] font-black text-slate-500 uppercase">Edad</label><input type="text" id="edad" class="w-full border-b border-slate-300 p-1 bg-transparent outline-none"></div>
-                    <div class="col-span-1">
-                        <label class="text-[10px] font-black text-slate-500 uppercase">Género</label>
-                        <select id="genero" class="w-full border-b border-slate-300 py-1 bg-transparent outline-none text-sm">
-                            <option value=""></option><option value="M">Masc</option><option value="F">Fem</option><option value="O">Otro</option>
-                        </select>
-                    </div>
-                    <div class="col-span-1"><label class="text-[10px] font-black text-slate-500 uppercase">Fecha Eval.</label><input type="date" id="fecha" class="w-full border-b border-slate-300 p-1 bg-transparent outline-none text-xs"></div>
-                    
-                    <div class="col-span-2 md:col-span-7 bg-white p-3 rounded border mt-2">
-                        <label class="block text-[10px] font-black text-blue-600 uppercase mb-1">Motivo de Consulta y Objetivos SMART (PIP)</label>
-                        <textarea id="motivo" oninput="autoHeight(this)" class="w-full outline-none text-sm" rows="2" placeholder="Expectativas del paciente..."></textarea>
-                    </div>
-                    
-                    <div class="col-span-2 md:col-span-4 bg-red-50/30 p-3 rounded border border-red-100 mt-2">
-                        <label class="block text-[10px] font-black text-red-600 uppercase mb-1">Banderas Rojas (Médicas)</label>
-                        <input type="text" id="red_flags" class="w-full bg-transparent border-b border-red-200 text-red-700 text-sm outline-none placeholder-red-300" placeholder="Ej: Pérdida de peso inexplicable...">
-                    </div>
-                    
-                    <div class="col-span-2 md:col-span-3 bg-yellow-50/30 p-3 rounded border border-yellow-200 mt-2">
-                        <label class="block text-[10px] font-black text-yellow-700 uppercase mb-1">Banderas Amarillas (Psicosociales)</label>
-                        <input type="text" id="yellow_flags" class="w-full bg-transparent border-b border-yellow-300 text-yellow-800 text-sm outline-none placeholder-yellow-400" placeholder="Ej: Kinesiofobia, estrés alto...">
-                    </div>
-                </div>
-            </section>
+        <div class="card lumbar">
+            <div class="card-header">
+                <h2 class="card-title">Oswestry (ODI)</h2>
+                <span class="badge lumbar">Columna Lumbar</span>
+            </div>
+            <div class="card-desc">
+                El Gold Standard para evaluar la discapacidad generada por el dolor lumbar.
+            </div>
+            <div class="clinical-use">
+                <strong>Cuándo aplicarla:</strong>
+                Ideal en pacientes con <em>dolor lumbar crónico, severo o post-quirúrgico</em>. Úsala cuando el paciente presenta una alta discapacidad o limitación severa en sus actividades de la vida diaria (AVD). Es menos sensible en dolores muy leves.
+            </div>
+            <a href="oswestry.html" target="_blank" class="btn btn-lumbar">Abrir Cuestionario</a>
+        </div>
 
-            <section class="section-card border-t-orange-500 bg-orange-50/20 p-6 rounded-lg">
-                <h2 class="text-lg font-bold text-orange-700 uppercase mb-4">2. Revisión de Sistemas (Screening)</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-white p-3 border rounded shadow-sm"><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Cardio / Pulmonar</label><textarea id="scr_cardio" oninput="autoHeight(this)" class="w-full text-sm outline-none border-none p-0"></textarea></div>
-                    <div class="bg-white p-3 border rounded shadow-sm"><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Musculoesquelético</label><textarea id="scr_musculo" oninput="autoHeight(this)" class="w-full text-sm outline-none border-none p-0"></textarea></div>
-                    <div class="bg-white p-3 border rounded shadow-sm"><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Neuro / Cognición</label><textarea id="scr_neuro" oninput="autoHeight(this)" class="w-full text-sm outline-none border-none p-0"></textarea></div>
-                    <div class="bg-white p-3 border rounded shadow-sm"><label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Integumentario</label><textarea id="scr_integ" oninput="autoHeight(this)" class="w-full text-sm outline-none border-none p-0"></textarea></div>
-                </div>
-            </section>
+        <div class="card lumbar">
+            <div class="card-header">
+                <h2 class="card-title">Roland-Morris (RMDQ)</h2>
+                <span class="badge lumbar">Columna Lumbar</span>
+            </div>
+            <div class="card-desc">
+                Cuestionario funcional de 24 ítems sobre limitaciones en actividades diarias.
+            </div>
+            <div class="clinical-use">
+                <strong>Cuándo aplicarla:</strong>
+                Recomendada para pacientes con dolor lumbar <em>agudo o subagudo de intensidad leve a moderada</em>. Es mucho más sensible a pequeños cambios que el Oswestry en pacientes ambulatorios que siguen siendo relativamente activos.
+            </div>
+            <a href="roland-morris.html" target="_blank" class="btn btn-lumbar">Abrir Cuestionario</a>
+        </div>
 
-            <section class="section-card border-t-red-500 bg-white p-6 rounded-lg shadow-sm">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-                    <h2 class="text-xl font-bold uppercase text-red-700">3. Mapa de Dolor</h2>
-                    <div class="no-print bg-slate-100 p-2 rounded-lg flex gap-4 border border-slate-200 color-selector">
-                        <label class="flex items-center cursor-pointer text-xs text-red-700"><input type="radio" name="painType" value="local" class="hidden" checked onchange="setPainColor('local')"><span class="px-3 py-1 rounded bg-red-100 border border-red-300">🔴 Local</span></label>
-                        <label class="flex items-center cursor-pointer text-xs text-blue-700"><input type="radio" name="painType" value="irradiado" class="hidden" onchange="setPainColor('irradiado')"><span class="px-3 py-1 rounded bg-blue-100 border border-blue-300">🔵 Irradiado</span></label>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="body-chart-container no-print">
-                        <div class="text-center w-full"><span class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Anterior</span><div class="img-wrapper" id="mapa-anterior" onclick="addDynamicPoint(event, 'anterior')"><svg viewBox="0 0 200 500" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"><path d="M100,20 C110,20 120,30 120,45 C120,60 110,70 100,70 C90,70 80,60 80,45 C80,30 90,20 100,20 M120,75 L160,85 L175,150 L180,210 L160,220 L150,150 L140,100 L135,250 L145,360 L140,480 L115,480 L105,300 L95,480 L70,480 L65,360 L75,250 L70,100 L60,150 L50,220 L30,210 L35,150 L50,85 Z"/></svg></div></div>
-                        <div class="text-center w-full"><span class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Posterior</span><div class="img-wrapper" id="mapa-posterior" onclick="addDynamicPoint(event, 'posterior')"><svg viewBox="0 0 200 500" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"><path d="M100,20 C110,20 120,30 120,45 C120,60 110,70 100,70 C90,70 80,60 80,45 C80,30 90,20 100,20 M120,75 L160,85 L175,150 L180,210 L160,220 L150,150 L140,100 L135,250 L145,360 L140,480 L115,480 L105,300 L95,480 L70,480 L65,360 L75,250 L70,100 L60,150 L50,220 L30,210 L35,150 L50,85 Z"/></svg></div></div>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="p-2 border rounded bg-slate-50 text-center"><label class="text-[10px] font-bold text-slate-500 uppercase">EVA Act</label><input type="number" id="eva_act" min="0" max="10" class="w-full text-xl font-bold text-center bg-transparent outline-none"></div>
-                            <div class="p-2 border rounded bg-slate-50 text-center"><label class="text-[10px] font-bold text-slate-500 uppercase">EVA Máx</label><input type="number" id="eva_max" min="0" max="10" class="w-full text-xl font-bold text-center bg-transparent outline-none text-red-600"></div>
-                            <div class="p-2 border rounded bg-slate-50 text-center"><label class="text-[10px] font-bold text-slate-500 uppercase">EVA Mín</label><input type="number" id="eva_min" min="0" max="10" class="w-full text-xl font-bold text-center bg-transparent outline-none text-blue-600"></div>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Cualidad</label>
-                            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                                <label><input type="checkbox" class="pain-desc mr-1" value="Punzante">Punzante</label><label><input type="checkbox" class="pain-desc mr-1" value="Sordo">Sordo</label><label><input type="checkbox" class="pain-desc mr-1" value="Quemante">Quemante</label>
-                                <label><input type="checkbox" class="pain-desc mr-1" value="Eléctrico">Eléctrico</label><label><input type="checkbox" class="pain-desc mr-1" value="Hormigueo">Hormigueo</label><label><input type="checkbox" class="pain-desc mr-1" value="Rígido">Rígido</label>
-                            </div>
-                        </div>
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Comportamiento 24h</label><textarea id="dolor_conducta" oninput="autoHeight(this)" class="w-full text-sm border p-2 rounded outline-none"></textarea></div>
-                    </div>
-                </div>
-            </section>
+        <div class="card cervical">
+            <div class="card-header">
+                <h2 class="card-title">Índice Cervical (NDI)</h2>
+                <span class="badge cervical">Columna Cervical</span>
+            </div>
+            <div class="card-desc">
+                Adaptación del Oswestry orientada exclusivamente a la funcionalidad del cuello.
+            </div>
+            <div class="clinical-use">
+                <strong>Cuándo aplicarla:</strong>
+                Aplicar en pacientes con <em>latigazo cervical (whiplash), cervicobraquialgias, radiculopatías o dolor mecánico de cuello</em>. Excelente para medir el impacto de cefaleas cervicogénicas y problemas de concentración por dolor.
+            </div>
+            <a href="ndi-cervical.html" target="_blank" class="btn btn-cervical">Abrir Cuestionario</a>
+        </div>
 
-            <section class="section-card border-t-purple-500 bg-purple-50/20 p-6 rounded-lg shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold uppercase text-purple-800">4. Medidas de Resultado Reportadas (PROMs)</h2>
-                    <button type="button" onclick="addPromRow()" class="no-print bg-purple-700 text-white px-4 py-1 rounded text-xs font-bold hover:bg-purple-800 transition">+ Añadir PROM</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-purple-100 text-purple-800 text-[10px] uppercase">
-                            <tr><th class="p-2 text-left w-1/4">Cuestionario Validado</th><th class="p-2 text-center w-24">Puntaje</th><th class="p-2 text-left">Observaciones</th><th class="no-print w-8"></th></tr>
-                        </thead>
-                        <tbody id="prom-body" class="divide-y divide-purple-100"></tbody>
-                    </table>
-                </div>
-            </section>
+        <div class="card psico">
+            <div class="card-header">
+                <h2 class="card-title">Tampa (TSK-11)</h2>
+                <span class="badge psico">Psicosocial</span>
+            </div>
+            <div class="card-desc">
+                Escala de 11 ítems para evaluar la kinesiofobia (miedo al movimiento).
+            </div>
+            <div class="clinical-use">
+                <strong>Cuándo aplicarla:</strong>
+                Utilizar en pacientes que muestran <em>conductas de evitación, miedo a re-lesionarse, o dolor persistente</em> que no concuerda con la curación del tejido. Fundamental para objetivar la necesidad de exposición gradual al ejercicio.
+            </div>
+            <a href="tampa-kinesiofobia.html" target="_blank" class="btn btn-psico">Abrir Cuestionario</a>
+        </div>
 
-            <section class="section-card border-t-slate-700 bg-white p-6 rounded-lg shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold uppercase text-slate-700">5. Examen Físico (JOSPT)</h2>
-                    <button type="button" onclick="addSmartTestRow()" class="no-print bg-slate-800 text-white px-4 py-1 rounded text-xs font-bold hover:bg-black transition">+ Añadir Test</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase">
-                            <tr><th class="p-2 text-left w-1/4">Guía JOSPT</th><th class="p-2 text-left w-1/3">Test Evidencia A/B</th><th class="p-2 text-center w-16">IZQ</th><th class="p-2 text-center w-16">DER</th><th class="p-2 text-left">Hallazgos</th><th class="no-print w-8"></th></tr>
-                        </thead>
-                        <tbody id="smart-test-body" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section class="section-card border-t-emerald-600 bg-emerald-50/20 p-6 rounded-lg shadow-sm">
-                <h2 class="text-xl font-bold uppercase text-emerald-800 mb-6">6. Funcionamiento (CIF Core Sets)</h2>
-                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                    <div class="space-y-2">
-                        <h3 class="text-[11px] font-black text-emerald-700 uppercase border-b border-emerald-300 pb-1">Funciones (b)</h3>
-                        <select onchange="addIcfRow('b-container', this, false)" class="no-print text-[10px] bg-emerald-600 text-white rounded px-2 py-1 w-full outline-none">
-                            <option value="">+ Añadir</option>
-                            <option value="b110 Conciencia">b110 Conciencia</option><option value="b130 Energía/Impulso">b130 Energía/Impulso</option>
-                            <option value="b134 Sueño">b134 Sueño</option><option value="b152 Emociones">b152 Emociones</option>
-                            <option value="b260 Propiocepción">b260 Propiocepción</option><option value="b280 Dolor">b280 Dolor</option>
-                            <option value="b415 Vasos Sanguíneos">b415 Vasos Sang.</option><option value="b435 Inmunológico">b435 Inmunológico</option>
-                            <option value="b710 Movilidad Art.">b710 Movilidad</option><option value="b715 Estabilidad Art.">b715 Estabilidad</option>
-                            <option value="b730 Fuerza Musc.">b730 Fuerza</option>
-                        </select>
-                        <div id="b-container" class="space-y-1"></div>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-end border-b border-emerald-300 pb-1">
-                            <h3 class="text-[11px] font-black text-emerald-700 uppercase">Actividades (d)</h3>
-                            <span class="text-[8px] font-bold text-slate-500">CAP / DES</span>
-                        </div>
-                        <select onchange="addIcfRow('d-act-container', this, true)" class="no-print text-[10px] bg-emerald-600 text-white rounded px-2 py-1 w-full outline-none">
-                            <option value="">+ Añadir</option>
-                            <option value="d410 Cambiar postura">d410 Cambiar postura</option><option value="d430 Levantar objetos">d430 Levantar objetos</option>
-                            <option value="d450 Caminar">d450 Caminar</option><option value="d510 Lavarse">d510 Lavarse</option>
-                            <option value="d530 Ir al baño">d530 Ir al baño</option><option value="d540 Vestirse">d540 Vestirse</option>
-                            <option value="d550 Comer">d550 Comer</option>
-                        </select>
-                        <div id="d-act-container" class="space-y-1"></div>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-end border-b border-emerald-300 pb-1">
-                            <h3 class="text-[11px] font-black text-emerald-700 uppercase">Participación (d)</h3>
-                            <span class="text-[8px] font-bold text-slate-500">CAP / DES</span>
-                        </div>
-                        <select onchange="addIcfRow('d-part-container', this, true)" class="no-print text-[10px] bg-emerald-600 text-white rounded px-2 py-1 w-full outline-none">
-                            <option value="">+ Añadir</option>
-                            <option value="d770 Relaciones Íntimas">d770 Relaciones</option><option value="d850 Trabajo">d850 Trabajo</option>
-                            <option value="d910 Vida Comunitaria">d910 Comunidad</option><option value="d920 Ocio/Recreación">d920 Ocio</option>
-                        </select>
-                        <div id="d-part-container" class="space-y-1"></div>
-                    </div>
-                    <div class="space-y-2">
-                        <h3 class="text-[11px] font-black text-emerald-700 uppercase border-b border-emerald-300 pb-1">Entorno (e)</h3>
-                        <select onchange="addIcfRow('e-container', this, false)" class="no-print text-[10px] bg-emerald-600 text-white rounded px-2 py-1 w-full outline-none">
-                            <option value="">+ Añadir</option>
-                            <option value="e110 Alimentos/Meds">e110 Alimentos/Meds</option><option value="e115 Tech Personal">e115 Tech Personal</option>
-                            <option value="e120 Tech Movilidad">e120 Tech Movilidad</option><option value="e225 Clima">e225 Clima</option>
-                            <option value="e310 Familia">e310 Familia</option><option value="e320 Amigos">e320 Amigos</option>
-                            <option value="e355 Prof. Salud">e355 Prof. Salud</option><option value="e410 Actitudes Familia">e410 Act. Familia</option>
-                            <option value="e580 Sist. Salud">e580 Sist. Salud</option>
-                        </select>
-                        <div id="e-container" class="space-y-1"></div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section-card border-t-blue-600 bg-blue-50/20 p-6 rounded-lg">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold text-blue-800 uppercase">7. Evolución (SOAP & Dosis)</h2>
-                    <button type="button" onclick="addSoapNote()" class="no-print bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-bold hover:bg-blue-700">+ Sesión</button>
-                </div>
-                <div id="soap-container" class="space-y-6"></div>
-            </section>
-        </form>
     </div>
+</div>
 
-    <script>
-        let isLoading = false; 
-
-        // --- SISTEMA PDF INTELIGENTE (V21) ---
-        function savePDF() {
-            // 1. Guardar el título original
-            const originalTitle = document.title;
-            
-            // 2. Extraer datos para el nombre (Fecha y Nombre)
-            let dateStr = document.getElementById('fecha').value;
-            if (!dateStr) {
-                // Si no hay fecha puesta, tomamos la de hoy en formato YYYY-MM-DD
-                const today = new Date();
-                const yyyy = today.getFullYear();
-                const mm = String(today.getMonth() + 1).padStart(2, '0');
-                const dd = String(today.getDate()).padStart(2, '0');
-                dateStr = `${yyyy}-${mm}-${dd}`;
-            }
-            
-            let rawName = document.getElementById('nombre').value.trim();
-            // Reemplazar espacios y caracteres raros por guiones bajos para evitar problemas en Windows/Mac
-            let cleanName = rawName.replace(/[^a-zA-Z0-9]/g, '_') || 'Paciente';
-            
-            // 3. Cambiar el título del documento temporalmente
-            document.title = `${dateStr}_${cleanName}`;
-            
-            // 4. Abrir la ventana de impresión (el PDF tomará el nuevo título)
-            window.print();
-            
-            // 5. Devolver el título a la normalidad después de un segundito
-            setTimeout(() => {
-                document.title = originalTitle;
-            }, 1000);
-        }
-
-        // --- MAPA DE DOLOR ---
-        let currentPainColor = 'local';
-        let dynamicPoints = {}; 
-        function setPainColor(type) { currentPainColor = type; }
-        
-        function addDynamicPoint(event, view) {
-            if (event.target.classList.contains('pain-marker')) return;
-            const rect = event.currentTarget.getBoundingClientRect();
-            const xPos = ((event.clientX - rect.left) / rect.width) * 100;
-            const yPos = ((event.clientY - rect.top) / rect.height) * 100;
-            const pointId = 'pt_' + Date.now();
-            dynamicPoints[pointId] = { x: xPos, y: yPos, type: currentPainColor, view: view };
-            renderPoints(); saveData();
-        }
-        
-        function removeDynamicPoint(pointId, event) {
-            event.stopPropagation(); delete dynamicPoints[pointId]; renderPoints(); saveData();
-        }
-        
-        function renderPoints() {
-            document.querySelectorAll('.pain-marker').forEach(el => el.remove());
-            for (let id in dynamicPoints) {
-                const pt = dynamicPoints[id];
-                const wrapper = document.getElementById(`mapa-${pt.view}`);
-                if (!wrapper) continue;
-                const marker = document.createElement('div');
-                marker.className = `pain-marker marker-${pt.type}`;
-                marker.style.left = pt.x + '%'; marker.style.top = pt.y + '%';
-                marker.title = "Clic para borrar";
-                marker.onclick = (e) => removeDynamicPoint(id, e);
-                wrapper.appendChild(marker);
-            }
-        }
-
-        // --- BIBLIOTECA JOSPT ---
-        const library = {
-            "Cadera OA (2025)": [{label:"ROM: Rot. Int (≤24°)"},{label:"ROM: Flexión (≤122°)"},{label:"FABER Test"},{label:"Scour Test"}],
-            "Hombro (2025)": [{label:"Painful Arc"},{label:"Hawkins-Kennedy"},{label:"Resistencia Rot. Ext"}],
-            "Aquiles (2024)": [{label:"Royal London Hospital"},{label:"Arc Sign"},{label:"Single Heel Raise"}],
-            "Codo Lat (2022)": [{label:"Pain-free Grip"},{label:"Cozen's Test"}],
-            "Patela (2019)": [{label:"Step-down Test"},{label:"Dolor en Squat"}],
-            "Fascia Plantar (2023)": [{label:"Windlass Test"},{label:"Tarsal Tunnel Screen"}]
-        };
-
-        let testCount=0, promCount=0, soapCount=0, cifCount=0;
-
-        function autoHeight(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
-
-        // --- GENERADORES DINÁMICOS ---
-        function addPromRow(id = null) {
-            if(!id) promCount++; 
-            const currentId = id || promCount;
-            const tbody = document.getElementById('prom-body');
-            const tr = document.createElement('tr'); tr.id = `row_p_${currentId}`;
-            tr.innerHTML = `
-                <td class="p-2 align-top"><select id="p_type_${currentId}" class="w-full text-xs border rounded p-1 outline-none bg-white"><option value="">Seleccionar...</option><option value="SPADI">SPADI (Hombro)</option><option value="HOOS">HOOS (Cadera)</option><option value="VISA-A">VISA-A (Aquiles)</option><option value="PRTEE">PRTEE (Codo)</option><option value="Oswestry">Oswestry (Lumbar)</option><option value="NDI">NDI (Cervical)</option><option value="LEFS">LEFS (Ext. Inferior)</option></select></td>
-                <td class="p-2 align-top"><input type="text" id="p_score_${currentId}" class="w-full text-center border-b outline-none text-xs font-bold text-purple-700" placeholder="% o pts"></td>
-                <td class="p-2 align-top"><input type="text" id="p_obs_${currentId}" class="w-full border-b outline-none text-xs" placeholder="Detalles..."></td>
-                <td class="no-print p-2 text-center"><button type="button" onclick="this.closest('tr').remove(); saveData();" class="text-slate-300 hover:text-red-500 font-bold">×</button></td>
-            `;
-            tbody.appendChild(tr); if(!id) saveData();
-        }
-
-        function addSmartTestRow(id = null) {
-            if(!id) testCount++; 
-            const currentId = id || testCount;
-            const tbody = document.getElementById('smart-test-body');
-            const tr = document.createElement('tr'); tr.id = `row_t_${currentId}`;
-            let zoneOptions = `<option value="">Guía...</option>`;
-            for (const zone in library) zoneOptions += `<option value="${zone}">${zone}</option>`;
-            tr.innerHTML = `
-                <td class="p-2 align-top"><select id="z_${currentId}" onchange="updateTests(${currentId})" class="w-full text-[10px] border rounded p-1 font-bold outline-none">${zoneOptions}</select></td>
-                <td class="p-2 align-top"><select id="ts_${currentId}" class="w-full text-[10px] border rounded p-1 bg-slate-50 outline-none"></select></td>
-                <td class="p-2 align-top"><input type="text" id="iz_${currentId}" class="w-full text-center border-b outline-none text-xs"></td>
-                <td class="p-2 align-top"><input type="text" id="de_${currentId}" class="w-full text-center border-b outline-none text-xs"></td>
-                <td class="p-2 align-top"><input type="text" id="ob_${currentId}" class="w-full border-b outline-none text-xs italic"></td>
-                <td class="no-print p-2 text-center align-top"><button type="button" onclick="this.closest('tr').remove(); saveData();" class="text-slate-300 hover:text-red-500 font-bold">×</button></td>`;
-            tbody.appendChild(tr); if(!id) saveData();
-        }
-
-        function updateTests(id) {
-            const zone = document.getElementById(`z_${id}`).value;
-            const sel = document.getElementById(`ts_${id}`);
-            sel.innerHTML = "";
-            if (library[zone]) library[zone].forEach(i => { const o = document.createElement('option'); o.value=i.label; o.text=i.label; sel.add(o); });
-            saveData();
-        }
-
-        function addIcfRow(containerId, selectEl, isDual = false, existingId = null) {
-            if(!selectEl.value && !existingId) return;
-            if(!existingId) cifCount++;
-            const rowId = existingId || `cif_r_${cifCount}`;
-            const label = existingId ? selectEl.value : selectEl.value; 
-            
-            const div = document.createElement('div');
-            div.id = rowId; div.className = "flex justify-between items-center text-[10px] p-1 bg-white rounded border border-slate-100 mb-1 cif-row";
-            div.dataset.label = label; div.dataset.isDual = isDual;
-            
-            div.innerHTML = isDual 
-                ? `<span class="truncate w-1/2 pr-1" title="${label}">${label}</span><div class="flex gap-1"><input type="text" id="${rowId}_c" class="cif-input" placeholder="C" title="Capacidad"><input type="text" id="${rowId}_d" class="cif-input" placeholder="D" title="Desempeño"></div>` 
-                : `<span class="truncate pr-1" title="${label}">${label}</span><input type="text" id="${rowId}_v" class="cif-input">`;
-            
-            document.getElementById(containerId).appendChild(div);
-            if(!existingId) { selectEl.value = ""; saveData(); }
-        }
-
-        function addSoapNote(id = null) {
-            if(!id) soapCount++; 
-            const currentId = id || soapCount;
-            const div = document.createElement('div');
-            div.className = "bg-white p-4 rounded border-l-4 border-blue-400 shadow-sm text-xs mb-4";
-            div.innerHTML = `<div class="flex justify-between border-b pb-1 mb-2 font-bold text-blue-900"><span>SESIÓN #${currentId}</span><input type="date" id="f_s${currentId}" class="outline-none text-slate-500"></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <textarea id="s_${currentId}" placeholder="S (Subjetivo)" oninput="autoHeight(this)" class="w-full border p-2 rounded h-12 outline-none bg-slate-50"></textarea>
-                    <div class="flex flex-col gap-1">
-                        <textarea id="o_${currentId}" placeholder="O (Objetivo e Intervención)" oninput="autoHeight(this)" class="w-full border p-2 rounded h-12 outline-none bg-slate-50"></textarea>
-                        <input type="text" id="dosis_${currentId}" placeholder="Dosis: Ej 3x10 @ 15kg | RPE: 7/10" class="w-full border border-blue-200 p-1.5 rounded text-[10px] outline-none bg-blue-50/50 text-blue-800 font-mono">
-                    </div>
-                    <textarea id="a_${currentId}" placeholder="A (Análisis)" oninput="autoHeight(this)" class="w-full border p-2 rounded h-12 outline-none bg-slate-50"></textarea>
-                    <textarea id="p_${currentId}" placeholder="P (Plan)" oninput="autoHeight(this)" class="w-full border p-2 rounded h-12 outline-none bg-slate-50"></textarea>
-                </div>`;
-            document.getElementById('soap-container').appendChild(div);
-            if(!id) saveData();
-        }
-
-        // --- MOTOR DE EXPORTACIÓN CSV INTELIGENTE (V21) ---
-        function exportToCSV() {
-            const getVal = (id) => {
-                const el = document.getElementById(id);
-                return el ? el.value.replace(/"/g, '""').replace(/\n/g, ' ') : '';
-            };
-
-            const fecha = getVal('fecha') || new Date().toISOString().split('T')[0];
-            const nombre = getVal('nombre');
-            const rut = getVal('rut');
-            const fechaNac = getVal('fecha_nac');
-            const edad = getVal('edad');
-            const genero = getVal('genero');
-            const motivo = getVal('motivo');
-            const red = getVal('red_flags');
-            const yellow = getVal('yellow_flags');
-
-            const sysCardio = getVal('scr_cardio') ? `Cardio: ${getVal('scr_cardio')}` : '';
-            const sysMusc = getVal('scr_musculo') ? `Musc: ${getVal('scr_musculo')}` : '';
-            const sysNeuro = getVal('scr_neuro') ? `Neuro: ${getVal('scr_neuro')}` : '';
-            const sysInteg = getVal('scr_integ') ? `Integ: ${getVal('scr_integ')}` : '';
-            const sistemasStr = [sysCardio, sysMusc, sysNeuro, sysInteg].filter(Boolean).join(' | ');
-
-            const evaActual = getVal('eva_act');
-            const evaMax = getVal('eva_max');
-            const evaMin = getVal('eva_min');
-            const evaStr = `Act:${evaActual} Máx:${evaMax} Mín:${evaMin}`;
-            
-            let cualidadesArr = [];
-            document.querySelectorAll('.pain-desc:checked').forEach(c => cualidadesArr.push(c.value));
-            const cualidadesStr = cualidadesArr.join(', ');
-            
-            const dolorComportamiento = getVal('dolor_conducta');
-            
-            let mapaLocales = 0, mapaIrradiados = 0;
-            for (let id in dynamicPoints) { 
-                if(dynamicPoints[id].type === 'local') mapaLocales++; 
-                else mapaIrradiados++; 
-            }
-            const mapaStr = `Local:${mapaLocales} Irradiado:${mapaIrradiados}`;
-
-            let promsArr = [];
-            document.querySelectorAll('#prom-body tr').forEach(tr => {
-                const id = tr.id.split('_')[2];
-                const t = document.getElementById(`p_type_${id}`)?.value || '';
-                const s = document.getElementById(`p_score_${id}`)?.value || '';
-                const o = document.getElementById(`p_obs_${id}`)?.value || '';
-                if(t || s) promsArr.push(`${t}: ${s} (${o})`);
-            });
-            const promsStr = promsArr.join(' | ');
-
-            let testsArr = [];
-            document.querySelectorAll('#smart-test-body tr').forEach(tr => {
-                const id = tr.id.split('_')[2];
-                const ts = document.getElementById(`ts_${id}`)?.value || '';
-                const iz = document.getElementById(`iz_${id}`)?.value || '-';
-                const de = document.getElementById(`de_${id}`)?.value || '-';
-                if(ts) testsArr.push(`${ts} [I:${iz} D:${de}]`);
-            });
-            const testsStr = testsArr.join(' | ');
-
-            let cifArr = [];
-            document.querySelectorAll('.cif-row').forEach(row => {
-                const lbl = row.dataset.label;
-                const inputs = row.querySelectorAll('input');
-                if(row.dataset.isDual === 'true') {
-                    const cVal = inputs[0] ? inputs[0].value : '';
-                    const dVal = inputs[1] ? inputs[1].value : '';
-                    if(cVal || dVal) cifArr.push(`${lbl} [CAP:${cVal} DES:${dVal}]`);
-                } else {
-                    const vVal = inputs[0] ? inputs[0].value : '';
-                    if(vVal) cifArr.push(`${lbl} [${vVal}]`);
-                }
-            });
-            const cifStr = cifArr.join(' | ');
-
-            let ultimoSoapStr = '';
-            if (soapCount > 0) {
-                const s = getVal(`s_${soapCount}`);
-                const o = getVal(`o_${soapCount}`);
-                const dosis = getVal(`dosis_${soapCount}`);
-                const a = getVal(`a_${soapCount}`);
-                const p = getVal(`p_${soapCount}`);
-                ultimoSoapStr = `S: ${s} | O: ${o} (Dosis: ${dosis}) | A: ${a} | P: ${p}`;
-            }
-
-            const cabeceras = [
-                'Fecha Eval.', 'Nombre Paciente', 'RUT', 'Fecha Nacimiento', 'Edad', 'Género', 'Motivo Consulta', 
-                'Banderas Rojas', 'Banderas Amarillas', 'Sistemas (Car/Mus/Neu/Int)',
-                'EVA (Act/Max/Min)', 'Cualidad Dolor', 'Comportamiento 24h', 'Puntos Mapa',
-                'PROMs', 'Examen Físico (JOSPT)', 'CIF Core Sets', 'Último SOAP'
-            ];
-            
-            const fila = [
-                fecha, nombre, rut, fechaNac, edad, genero, motivo, 
-                red, yellow, sistemasStr, 
-                evaStr, cualidadesStr, dolorComportamiento, mapaStr,
-                promsStr, testsStr, cifStr, ultimoSoapStr
-            ];
-
-            const filaFormateada = fila.map(campo => `"${campo}"`).join(',');
-            const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + cabeceras.join(',') + '\n' + filaFormateada;
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Backup_${nombre.replace(/\s+/g, '_') || 'Ficha'}_${fecha}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // --- SISTEMA DE PERSISTENCIA Y RECUPERACIÓN ---
-        function saveData() {
-            if (isLoading) return; 
-            
-            const data = { 
-                counts: { test: testCount, prom: promCount, soap: soapCount, cif: cifCount },
-                fields: {}, icfRows: [], testRows: [], promRows: [], dynamicPoints: dynamicPoints, descs: [] 
-            };
-            
-            document.querySelectorAll('input:not([type="radio"]), textarea, select').forEach(el => { 
-                if(el.id && !el.id.startsWith('z_') && !el.id.startsWith('ts_') && !el.id.startsWith('iz_') && !el.id.startsWith('de_') && !el.id.startsWith('ob_') && !el.id.startsWith('p_type_') && !el.id.startsWith('p_score_') && !el.id.startsWith('p_obs_') && !el.id.startsWith('cif_r_')) {
-                    data.fields[el.id] = el.value; 
-                }
-            });
-            
-            document.querySelectorAll('.pain-desc:checked').forEach(c => data.descs.push(c.value));
-            
-            document.querySelectorAll('#smart-test-body tr').forEach(tr => {
-                const id = tr.id.split('_')[2];
-                data.testRows.push({ id: id, z: document.getElementById(`z_${id}`).value, ts: document.getElementById(`ts_${id}`).value, iz: document.getElementById(`iz_${id}`).value, de: document.getElementById(`de_${id}`).value, ob: document.getElementById(`ob_${id}`).value });
-            });
-
-            document.querySelectorAll('#prom-body tr').forEach(tr => {
-                const id = tr.id.split('_')[2];
-                data.promRows.push({ id: id, type: document.getElementById(`p_type_${id}`).value, score: document.getElementById(`p_score_${id}`).value, obs: document.getElementById(`p_obs_${id}`).value });
-            });
-
-            document.querySelectorAll('.cif-row').forEach(row => {
-                const inputs = row.querySelectorAll('input');
-                data.icfRows.push({ id: row.id, container: row.parentElement.id, label: row.dataset.label, isDual: row.dataset.isDual === 'true', vals: Array.from(inputs).map(i => i.value) });
-            });
-
-            localStorage.setItem('kine_v21', JSON.stringify(data));
-        }
-
-        function loadData() {
-            try {
-                const json = localStorage.getItem('kine_v21');
-                if(!json) { addSmartTestRow(); addPromRow(); addSoapNote(); return; }
-                
-                isLoading = true; 
-                const data = JSON.parse(json);
-
-                testCount = (data.counts && data.counts.test) ? data.counts.test : 0;
-                promCount = (data.counts && data.counts.prom) ? data.counts.prom : 0;
-                soapCount = (data.counts && data.counts.soap) ? data.counts.soap : 0;
-                cifCount  = (data.counts && data.counts.cif) ? data.counts.cif : 0;
-
-                const tRows = data.testRows || [];
-                const pRows = data.promRows || [];
-                const iRows = data.icfRows || [];
-                const dPoints = data.dynamicPoints || {};
-                const descriptions = data.descs || [];
-                const fields = data.fields || {};
-
-                document.getElementById('smart-test-body').innerHTML = ''; tRows.forEach(row => { addSmartTestRow(row.id); });
-                document.getElementById('prom-body').innerHTML = ''; pRows.forEach(row => { addPromRow(row.id); });
-                iRows.forEach(row => { addIcfRow(row.container, { value: row.label }, row.isDual, row.id); });
-                for(let i=1; i<=soapCount; i++) { addSoapNote(i); }
-
-                tRows.forEach(row => {
-                    const zEl = document.getElementById(`z_${row.id}`);
-                    if (zEl) { zEl.value = row.z; updateTests(row.id); }
-                    const tsEl = document.getElementById(`ts_${row.id}`); if (tsEl) tsEl.value = row.ts;
-                    const izEl = document.getElementById(`iz_${row.id}`); if(izEl) izEl.value = row.iz;
-                    const deEl = document.getElementById(`de_${row.id}`); if(deEl) deEl.value = row.de;
-                    const obEl = document.getElementById(`ob_${row.id}`); if(obEl) obEl.value = row.ob;
-                });
-
-                pRows.forEach(row => {
-                    const pT = document.getElementById(`p_type_${row.id}`); if(pT) pT.value = row.type;
-                    const pS = document.getElementById(`p_score_${row.id}`); if(pS) pS.value = row.score;
-                    const pO = document.getElementById(`p_obs_${row.id}`); if(pO) pO.value = row.obs;
-                });
-
-                iRows.forEach(row => {
-                    const rowEl = document.getElementById(row.id);
-                    if (rowEl) { const inputs = rowEl.querySelectorAll('input'); row.vals.forEach((v, i) => { if(inputs[i]) inputs[i].value = v; }); }
-                });
-
-                for(let key in fields) { 
-                    const el = document.getElementById(key); 
-                    if(el) { el.value = fields[key]; if(el.tagName==='TEXTAREA') autoHeight(el); } 
-                }
-                
-                dynamicPoints = dPoints; renderPoints();
-                descriptions.forEach(v => { const c = document.querySelector(`.pain-desc[value="${v}"]`); if(c) c.checked = true; });
-
-            } catch (error) {
-                console.error("Error recuperando ficha:", error);
-            } finally {
-                isLoading = false; 
-            }
-        }
-
-        function clearData() { if(confirm("¿Borrar todos los datos permanentemente?")) { localStorage.removeItem('kine_v21'); location.reload(); } }
-        
-        document.getElementById('kineForm').addEventListener('change', saveData);
-        document.getElementById('kineForm').addEventListener('input', saveData);
-        window.onload = loadData;
-    </script>
 </body>
-
 </html>
-
