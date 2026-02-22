@@ -223,7 +223,62 @@
         .btn-calc { background-color: #3498db; }
         .btn-pdf { background-color: #27ae60; display: none; }
         .btn-print { background-color: #7f8c8d; display: none; }
-        
+/* =========================================
+           ESTILOS RESPONSIVE PARA MÓVILES Y TABLETS
+           ========================================= */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px 15px; /* Reduce el espacio interior */
+            }
+            .version-tag {
+                position: relative; /* Quita la posición absoluta para que no se superponga */
+                top: 0;
+                right: 0;
+                display: block;
+                text-align: center;
+                margin-bottom: 15px;
+            }
+            h1 {
+                font-size: 24px; /* Título un poco más pequeño */
+            }
+            .patient-info {
+                grid-template-columns: 1fr; /* Apila Nombre y Fecha verticalmente */
+                padding: 15px;
+                gap: 15px;
+            }
+            .options-group {
+                flex-direction: column; /* Apila los botones de "De acuerdo / En desacuerdo" */
+                gap: 10px;
+            }
+            .scores-grid {
+                grid-template-columns: 1fr; /* Apila las cajas de resultados */
+            }
+            .resultado-box {
+                padding: 15px;
+            }
+            
+            /* Solución para que la tabla no rompa la pantalla */
+            .interpretation-table {
+                display: block;
+                overflow-x: auto; /* Permite deslizar la tabla hacia los lados si es muy ancha */
+                white-space: nowrap; 
+            }
+            .interpretation-table th, .interpretation-table td {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .actions {
+                flex-direction: column; /* Apila los botones de acción */
+                gap: 10px;
+            }
+            button {
+                width: 100%; /* Botones ocupan todo el ancho para ser más fáciles de tocar */
+            }
+        }        
         @media print {
             body { background: white; padding: 0; }
             .container { box-shadow: none; border: none; padding: 0; }
@@ -452,4 +507,5 @@
 </script>
 
 </body>
+
 </html>
