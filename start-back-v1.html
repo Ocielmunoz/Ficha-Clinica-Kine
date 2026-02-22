@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionarios - STarT Back</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 850px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .version-tag {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #95a5a6;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 35px;
+            font-size: 16px;
+        }
+        .patient-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+        .input-group input {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+        .instrucciones {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-left: 5px solid #ffeeba;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .question-block {
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: #fff;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+        }
+        .question-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2c3e50;
+            font-size: 1.05em;
+        }
+        .options-group {
+            display: flex;
+            gap: 20px;
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            transition: all 0.2s;
+            flex: 1;
+            justify-content: center;
+        }
+        .option-label:hover { background-color: #e9ecef; }
+        input[type="radio"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        /* Estilos específicos para la pregunta 9 (Likert) */
+        .likert-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .likert-label {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .likert-label:hover { background-color: #e9ecef; }
+
+        /* Estilos de Resultados */
+        #resultado-container {
+            margin-top: 30px;
+            display: none;
+            page-break-inside: avoid;
+        }
+        .resultado-box {
+            padding: 25px;
+            background-color: #ebf5fb;
+            border-radius: 8px 8px 0 0;
+            border-left: 6px solid #3498db;
+        }
+        .scores-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .score-item {
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2980b9;
+        }
+        .interpretation-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+            border-top: none;
+        }
+        .interpretation-table th, .interpretation-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .interpretation-table th {
+            background-color: #34495e;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        /* Clases de Riesgo */
+        .riesgo-bajo { background-color: #d4efdf !important; color: #1e8449; font-weight: bold; border-left: 4px solid #27ae60; }
+        .riesgo-medio { background-color: #fcf3cf !important; color: #b7950b; font-weight: bold; border-left: 4px solid #f1c40f; }
+        .riesgo-alto { background-color: #fadbd8 !important; color: #b03a2e; font-weight: bold; border-left: 4px solid #e74c3c; }
+
+        .clinica-note {
+            margin-top: 15px;
+            color: #34495e;
+            font-size: 0.95em;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #95a5a6;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        button {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .btn-calc { background-color: #3498db; }
+        .btn-pdf { background-color: #27ae60; display: none; }
+        .btn-print { background-color: #7f8c8d; display: none; }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; padding: 0; }
+            .actions, .version-tag { display: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="documento-area">
+    <div class="version-tag">Creado por Ociel Munoz - STarT v1</div>
+    <h1>Herramienta de Tamizaje STarT Back</h1>
+    <div class="subtitle">Estratificación de Riesgo Biopsicosocial en Dolor Lumbar</div>
+    
+    <div class="patient-info">
+        <div class="input-group">
+            <label>Nombre y Apellido</label>
+            <input type="text" id="nombrePaciente" placeholder="Nombre completo">
+        </div>
+        <div class="input-group">
+            <label>Fecha de Evaluación</label>
+            <input type="date" id="fechaEval">
+        </div>
+    </div>
+
+    <div class="instrucciones">
+        Pensando en las <strong>últimas 2 semanas</strong>, marque su respuesta a las siguientes afirmaciones sobre su dolor de espalda.
+    </div>
+
+    <div id="cuestionario-container"></div>
+
+    <div id="resultado-container">
+        <div class="resultado-box">
+            <div class="scores-grid">
+                <div class="score-item">
+                    <div>Puntuación Total (0-9)</div>
+                    <div class="score-value" id="res-total">0</div>
+                </div>
+                <div class="score-item">
+                    <div>Sub-puntuación Psicosocial (0-5)</div>
+                    <div class="score-value" id="res-psico">0</div>
+                    <div style="font-size: 12px; color: #7f8c8d;">(Basado en preg. 5 a 9)</div>
+                </div>
+            </div>
+        </div>
+        
+        <table class="interpretation-table">
+            <thead>
+                <tr>
+                    <th>Categoría de Riesgo</th>
+                    <th>Criterio Clínico (Keele University)</th>
+                    <th>Recomendación de Tratamiento</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="fila-bajo">
+                    <td>Riesgo Bajo</td>
+                    <td>Puntuación Total de 0 a 3</td>
+                    <td>Aconsejar, educar, analgesia básica. Mantener activo. Fisioterapia breve.</td>
+                </tr>
+                <tr id="fila-medio">
+                    <td>Riesgo Medio</td>
+                    <td>Punt. Total de 4 a 9 <strong>Y</strong> Punt. Psicosocial de 0 a 3</td>
+                    <td>Fisioterapia conservadora estándar (ejercicio, terapia manual).</td>
+                </tr>
+                <tr id="fila-alto">
+                    <td>Riesgo Alto</td>
+                    <td>Punt. Total de 4 a 9 <strong>Y</strong> Punt. Psicosocial de 4 a 5</td>
+                    <td>Fisioterapia psicológicamente informada. Abordaje complejo.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="clinica-note" id="nota-diagnostica">
+            </div>
+    </div>
+
+    <div class="actions" id="seccion-botones">
+        <button class="btn-calc" onclick="calcular()">Calcular Estratificación</button>
+        <button class="btn-pdf" id="btnDescargar" onclick="guardarPDF()">Descargar PDF</button>
+        <button class="btn-print" id="btnImprimir" onclick="window.print()">Imprimir / Guardar como PDF</button>
+    </div>
+</div>
+
+<script>
+    // Q1 a Q8 son dicotómicas (Desacuerdo = 0, De acuerdo = 1)
+    const preguntasBinarias = [
+        "1. Mi dolor de espalda se ha extendido por la pierna(s) en las últimas 2 semanas.",
+        "2. He tenido dolor en el hombro o en el cuello al mismo tiempo en las últimas 2 semanas.",
+        "3. He caminado distancias más cortas debido a mi dolor de espalda en las últimas 2 semanas.",
+        "4. Me he vestido más lentamente de lo normal debido a mi dolor de espalda en las últimas 2 semanas.",
+        "5. No es realmente seguro para una persona con mi problema ser físicamente activa.",
+        "6. Tengo pensamientos de que mi dolor de espalda durará mucho tiempo.",
+        "7. Siento que mi dolor de espalda es terrible y que nunca va a mejorar.",
+        "8. En general, no he disfrutado de todas las cosas que solía disfrutar."
+    ];
+
+    // Q9 es Likert. Puntuación: 1 punto solo si responde "Mucho" o "Extremadamente".
+    const pregunta9 = "9. En general, ¿cómo de molesto ha sido su dolor de espalda en las últimas 2 semanas?";
+    const opcionesQ9 = ["Nada", "Poco", "Moderadamente", "Mucho", "Extremadamente"];
+
+    const container = document.getElementById('cuestionario-container');
+    document.getElementById('fechaEval').valueAsDate = new Date();
+
+    function render() {
+        // Renderizar Q1 a Q8
+        preguntasBinarias.forEach((q, i) => {
+            let div = document.createElement('div');
+            div.className = 'question-block';
+            div.innerHTML = `
+                <div class="question-title">${q}</div>
+                <div class="options-group">
+                    <label class="option-label"><input type="radio" name="q${i}" value="0"> En desacuerdo</label>
+                    <label class="option-label"><input type="radio" name="q${i}" value="1"> De acuerdo</label>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+
+        // Renderizar Q9
+        let div9 = document.createElement('div');
+        div9.className = 'question-block';
+        let likertHtml = `<div class="question-title">${pregunta9}</div><div class="likert-group">`;
+        opcionesQ9.forEach((opt, index) => {
+            // Valores 0 a 2 = 0 puntos. Valores 3 y 4 (Mucho, Extremadamente) = 1 punto.
+            let valorPunto = (index >= 3) ? 1 : 0; 
+            likertHtml += `
+                <label class="likert-label">
+                    <input type="radio" name="q8" value="${valorPunto}"> ${opt}
+                </label>`;
+        });
+        likertHtml += `</div>`;
+        div9.innerHTML = likertHtml;
+        container.appendChild(div9);
+    }
+
+    function calcular() {
+        let totalScore = 0;
+        let psychoScore = 0;
+        let respondidas = 0;
+
+        // Evaluar las 9 preguntas (índices 0 a 8)
+        for(let i = 0; i < 9; i++) {
+            let sel = document.querySelector(`input[name="q${i}"]:checked`);
+            if (sel) {
+                let val = parseInt(sel.value);
+                totalScore += val;
+                respondidas++;
+                // La sub-puntuación psicosocial suma las preguntas 5,6,7,8 y 9 (índices 4 al 8)
+                if (i >= 4) {
+                    psychoScore += val;
+                }
+            }
+        }
+
+        if (respondidas < 9) {
+            alert("Por favor, responda a las 9 preguntas para realizar una estratificación precisa.");
+            return;
+        }
+
+        // Limpiar estilos previos
+        document.getElementById('fila-bajo').classList.remove('riesgo-bajo');
+        document.getElementById('fila-medio').classList.remove('riesgo-medio');
+        document.getElementById('fila-alto').classList.remove('riesgo-alto');
+
+        // Algoritmo Keele STarT Back
+        let notaDiagnostica = document.getElementById('nota-diagnostica');
+
+        if (totalScore <= 3) {
+            document.getElementById('fila-bajo').classList.add('riesgo-bajo');
+            notaDiagnostica.innerHTML = "<strong>Diagnóstico: RIESGO BAJO.</strong><br>El paciente tiene un pronóstico favorable. Se recomienda evitar el sobretratamiento. Fomentar el autocuidado, explicar la naturaleza benigna del dolor agudo y promover el rápido retorno a las actividades normales.";
+        } 
+        else if (totalScore >= 4 && psychoScore <= 3) {
+            document.getElementById('fila-medio').classList.add('riesgo-medio');
+            notaDiagnostica.innerHTML = "<strong>Diagnóstico: RIESGO MEDIO.</strong><br>El paciente presenta dolor limitante pero barreras psicosociales controlables. Se beneficiará del tratamiento de Fisioterapia convencional orientado a objetivos funcionales (ejercicio, terapia manual guiada).";
+        } 
+        else if (totalScore >= 4 && psychoScore >= 4) {
+            document.getElementById('fila-alto').classList.add('riesgo-alto');
+            notaDiagnostica.innerHTML = "<strong>Diagnóstico: RIESGO ALTO.</strong><br>El paciente presenta fuertes creencias desadaptativas (miedo, catastrofismo, ansiedad) que bloquearán la recuperación física. El tratamiento debe ser 'Psicológicamente Informado': priorizar la educación en neurociencia del dolor, exposición gradual y derivación a psicología si es necesario, antes de enfocarse en biomecánica pura.";
+        }
+
+        // Mostrar valores
+        document.getElementById('res-total').innerText = totalScore;
+        document.getElementById('res-psico').innerText = psychoScore;
+
+        const resContainer = document.getElementById('resultado-container');
+        resContainer.style.display = "block";
+        document.getElementById('btnDescargar').style.display = "block";
+        document.getElementById('btnImprimir').style.display = "block";
+        
+        resContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    async function guardarPDF() {
+        window.scrollTo(0, 0);
+
+        const nombre = document.getElementById('nombrePaciente').value.trim() || "paciente";
+        const fecha = document.getElementById('fechaEval').value;
+        const filename = `${fecha}_startback_${nombre.toLowerCase().replace(/\s+/g, '')}.pdf`;
+        
+        const element = document.getElementById('documento-area');
+        const buttons = document.getElementById('seccion-botones');
+        buttons.style.display = 'none';
+
+        const opt = {
+            margin: [15, 15, 15, 15],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, scrollY: 0, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } catch (e) {
+            console.error("PDF Error:", e);
+            alert("Error al generar el PDF. Por favor, usa el botón 'Imprimir / Guardar como PDF'.");
+        } finally {
+            buttons.style.display = 'flex';
+        }
+    }
+
+    render();
+</script>
+
+</body>
+</html>
