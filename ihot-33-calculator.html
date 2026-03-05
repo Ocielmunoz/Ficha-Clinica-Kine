@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iHOT-33 - Evaluación Funcional de Cadera</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .version-tag {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #95a5a6;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+        .indicacion-box {
+            background-color: #e8f6f3;
+            border-left: 5px solid #1abc9c;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+        .indicacion-box h4 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #16a085;
+        }
+        .indicacion-box p {
+            margin: 0;
+            font-size: 0.95em;
+        }
+        
+        /* Botones Paneles */
+        .toggle-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .btn-toggle {
+            background-color: #f8f9fa;
+            color: #34495e;
+            border: 1px solid #dee2e6;
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 200px;
+            transition: all 0.2s ease;
+        }
+        .btn-toggle:hover { background-color: #e9ecef; }
+        .btn-toggle.active {
+            background-color: #34495e;
+            color: white;
+            border-color: #34495e;
+        }
+        
+        .info-panel {
+            display: none;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-left: 5px solid #34495e;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .info-panel.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-title {
+            font-size: 18px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            margin-top: 30px;
+        }
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        .input-group { display: flex; flex-direction: column; }
+        .input-group label { font-weight: 600; margin-bottom: 8px; color: #34495e; font-size: 0.9em; }
+        .input-group input, .input-group select {
+            padding: 10px; border: 2px solid #dee2e6; border-radius: 6px; font-size: 14px; outline: none;
+        }
+
+        /* Estilos de las Preguntas y Sliders */
+        .domain-title {
+            background-color: #34495e;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .question-item {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+        }
+        .question-text {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input[type=range] {
+            flex: 1;
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #bdc3c7;
+            border-radius: 3px;
+        }
+        .slider-output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #2980b9;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* Resultados */
+        #resultado-container { margin-top: 30px; display: none; page-break-inside: avoid; }
+        .resultado-box {
+            padding: 25px; background-color: #ebf5fb; border-radius: 8px; border-left: 6px solid #3498db; margin-bottom: 20px;
+        }
+        .score-display {
+            display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px;
+        }
+        .score-value { font-size: 38px; font-weight: bold; color: #2980b9; }
+        .score-max { font-size: 18px; color: #7f8c8d; }
+        .score-risk { font-size: 18px; font-weight: bold; padding: 8px 16px; border-radius: 20px; text-align: center; }
+        .clinica-note {
+            color: #34495e; font-size: 0.95em; background: #fff; padding: 15px; border-radius: 6px; border: 1px solid #dee2e6; border-left: 4px solid #3498db;
+        }
+
+        .actions { display: flex; gap: 15px; margin-top: 40px; flex-wrap: wrap; }
+        button.btn-action {
+            flex: 1; min-width: 200px; padding: 16px; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: 700; transition: opacity 0.2s;
+        }
+        button.btn-action:hover { opacity: 0.9; }
+        .btn-calc { background-color: #3498db; }
+        .btn-pdf { background-color: #27ae60; }
+        .btn-print { background-color: #7f8c8d; }
+
+        @media (max-width: 768px) {
+            .score-display { flex-direction: column; text-align: center; gap: 10px; }
+            .actions { flex-direction: column; }
+            button.btn-action { width: 100%; }
+        }        
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; padding: 0; }
+            .actions, .toggle-buttons, .version-tag { display: none !important; }
+            input[type=range] { appearance: none; pointer-events: none; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="documento-area">
+    <div class="version-tag">MSK / Ortopedia - iHOT-33 v1.0</div>
+    <h1>iHOT-33 (Cuestionario de Cadera)</h1>
+    <div class="subtitle">International Hip Outcome Tool para Pacientes Jóvenes/Activos</div>
+
+    <div class="indicacion-box">
+        <h4>📌 Indicación Clínica</h4>
+        <p>Utilizado para evaluar síntomas y función en pacientes de 18 a 60 años con patología articular de cadera (Pinzamiento Fémoroacetabular, lesiones del labrum, displasia). Es fundamental para decidir manejos conservadores vs. quirúrgicos (artroscopia) y para monitorear el Return to Sport.</p>
+    </div>
+    
+    <div class="toggle-buttons" id="seccion-toggles">
+        <button class="btn-toggle" onclick="togglePanel('panel-clinico', this)">👨‍⚕️ Puntuación e Interpretación</button>
+        <button class="btn-toggle" onclick="togglePanel('panel-paciente', this)">🗣️ Instrucciones Paciente</button>
+    </div>
+
+    <div id="panel-clinico" class="info-panel">
+        <h3 style="margin-top:0; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">Interpretación de Resultados</h3>
+        <p style="margin-bottom: 5px;">El puntaje total es el promedio de todas las respuestas marcadas, representado como un porcentaje de 0 a 100%.</p>
+        <ul style="padding-left: 20px; color: #444;">
+            <li><strong>100%:</strong> Función óptima, asintomático.</li>
+            <li><strong>> 85%:</strong> Excelente función. Umbral sugerido para alta deportiva post-artroscopia.</li>
+            <li><strong>50% - 84%:</strong> Disfunción moderada. Limitación en alta demanda.</li>
+            <li><strong>< 50%:</strong> Disfunción severa. Calidad de vida afectada significativamente.</li>
+        </ul>
+        <p><em>Diferencia Clínicamente Importante Mínima (MCID): 6.1 puntos.</em></p>
+    </div>
+
+    <div id="panel-paciente" class="info-panel" style="border-left-color: #2980b9;">
+        <h3 style="margin-top:0; color: #2980b9; border-bottom: 1px solid #eee; padding-bottom: 10px;">Instrucciones para el Paciente</h3>
+        <blockquote style="background: #f4f6f7; padding: 15px; border-radius: 6px; font-style: italic; color: #2c3e50; border-left: 3px solid #bdc3c7; margin:0;">
+            "Estas preguntas buscan saber cuánta dificultad le causa su cadera. Deslice el marcador en la barra para indicar su respuesta considerando el <strong>último mes</strong>.<br><br>
+            El extremo izquierdo (0) indica el <strong>peor escenario</strong> (dolor extremo o imposibilidad) y el derecho (100) indica el <strong>mejor escenario</strong> (sin dolor ni dificultad). Si una actividad no aplica a usted, déjela en el centro."
+        </blockquote>
+    </div>
+
+    <div class="section-title">Datos del Paciente</div>
+    <div class="grid-layout">
+        <div class="input-group">
+            <label>Nombre y Apellido</label>
+            <input type="text" id="nombrePaciente" placeholder="Nombre completo">
+        </div>
+        <div class="input-group">
+            <label>Fecha de Evaluación</label>
+            <input type="date" id="fechaEval">
+        </div>
+        <div class="input-group">
+            <label>Cadera Evaluada</label>
+            <select id="ladoCadera">
+                <option value="Derecha">Derecha</option>
+                <option value="Izquierda">Izquierda</option>
+                <option value="Ambas">Ambas (Bilateral)</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="ihot-questions">
+        </div>
+
+    <div id="resultado-container">
+        <div class="section-title">Análisis e Interpretación iHOT-33</div>
+        <div class="resultado-box" id="caja-resultado">
+            <div class="score-display">
+                <div>
+                    <div style="font-size: 0.85em; color: #7f8c8d; font-weight: 600; text-transform: uppercase;">Puntaje Promedio Total</div>
+                    <span class="score-value" id="res-puntaje">0</span><span class="score-max">%</span>
+                </div>
+                <div class="score-risk" id="res-riesgo">Nivel</div>
+            </div>
+            
+            <div class="clinica-note" id="nota-clinica">
+                </div>
+        </div>
+    </div>
+
+    <div class="actions" id="seccion-botones">
+        <button class="btn-action btn-calc" onclick="calcular()">Calcular Puntaje iHOT</button>
+        <button class="btn-action btn-pdf" id="btnDescargar" onclick="guardarPDF()">Descargar PDF</button>
+        <button class="btn-action btn-print" id="btnImprimir" onclick="window.print()">Imprimir</button>
+    </div>
+</div>
+
+<script>
+    // Configuración Inicial
+    document.getElementById('fechaEval').valueAsDate = new Date();
+
+    function togglePanel(panelId, btnElement) {
+        const panel = document.getElementById(panelId);
+        if (panel.classList.contains('show')) {
+            panel.classList.remove('show');
+            btnElement.classList.remove('active');
+        } else {
+            document.querySelectorAll('.info-panel').forEach(p => p.classList.remove('show'));
+            document.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
+            panel.classList.add('show');
+            btnElement.classList.add('active');
+        }
+    }
+
+    // Dominios y Preguntas iHOT-33
+    const dominios = [
+        {
+            titulo: "Sección 1: Síntomas y Limitaciones Funcionales",
+            extremos: { peor: "Extremadamente difícil / Doloroso", mejor: "Sin dificultad / Sin dolor" },
+            preguntas: [
+                "1. ¿Con qué frecuencia le duele la cadera/ingle?",
+                "2. ¿Qué tan rígida siente su cadera después de estar sentado/descansando?",
+                "3. ¿Cuánta dificultad tiene para caminar largas distancias?",
+                "4. ¿Cuánto dolor tiene en la cadera al estar sentado por tiempos prolongados?",
+                "5. ¿Cuánto dolor tiene al estar de pie por tiempos prolongados?",
+                "6. ¿Cuánta dificultad tiene para pararse después de estar sentado?",
+                "7. ¿Cuánta dificultad tiene para subir o bajar escaleras?",
+                "8. ¿Cuánta dificultad tiene para ponerse los calcetines/zapatos?",
+                "9. ¿Cuánta dificultad tiene para agacharse (ej. recoger algo del suelo)?",
+                "10. ¿Cuánta dificultad tiene para entrar o salir de un auto?",
+                "11. ¿Cuánta dificultad tiene para cruzar las piernas?",
+                "12. ¿Con qué frecuencia su cadera se 'engancha', hace chasquidos o se traba?",
+                "13. ¿Con qué frecuencia siente que su cadera cede o no lo sostiene?",
+                "14. ¿Con qué frecuencia le duele la cadera al darse vuelta en la cama?",
+                "15. ¿Cuánto dolor siente en su cadera al final de un día normal?",
+                "16. ¿Qué tan cojo camina usted debido a su cadera?"
+            ]
+        },
+        {
+            titulo: "Sección 2: Deportes y Actividades Recreativas",
+            extremos: { peor: "Extremadamente difícil / Mucho dolor", mejor: "Sin dificultad / Sin dolor" },
+            preguntas: [
+                "17. ¿Cuánta dificultad tiene para mantener su nivel de condición física o deporte?",
+                "18. ¿Cuánto dolor tiene en su cadera después de hacer deporte o actividad física?",
+                "19. ¿Cuánta preocupación tiene por cambiar de dirección o pivotar durante el deporte?",
+                "20. ¿Cuánta dificultad tiene con movimientos que exigen abrir las piernas lateralmente?",
+                "21. ¿Cuánto le impide su dolor de cadera alcanzar su máximo rendimiento deportivo?",
+                "22. ¿Con qué frecuencia debe detener la actividad deportiva debido al dolor de cadera?"
+            ]
+        },
+        {
+            titulo: "Sección 3: Preocupaciones Laborales",
+            extremos: { peor: "Extrema dificultad", mejor: "Ninguna dificultad" },
+            preguntas: [
+                "23. ¿Cuánta dificultad tiene para empujar, tirar o levantar objetos pesados en el trabajo?",
+                "24. ¿Cuánta dificultad tiene para realizar tareas que requieran agacharse o ponerse en cuclillas?",
+                "25. ¿Cuánto afecta el dolor de cadera su concentración en el trabajo?",
+                "26. ¿Cuánta dificultad tiene en su trabajo debido a problemas en su cadera?"
+            ]
+        },
+        {
+            titulo: "Sección 4: Preocupaciones Sociales, Emocionales y de Estilo de Vida",
+            extremos: { peor: "Extremadamente / Todo el tiempo", mejor: "Nada / Nunca" },
+            preguntas: [
+                "27. ¿Cuánta frustración siente debido a su problema de cadera?",
+                "28. ¿Cuánto afecta su problema de cadera sus relaciones sociales o salir con amigos?",
+                "29. ¿Cuánto afecta su problema de cadera su actividad sexual?",
+                "30. ¿Cuánto tiempo está consciente o pensando en el dolor de su cadera?",
+                "31. ¿Cuánta dificultad tiene para dormir debido a su cadera?",
+                "32. ¿Cuánta preocupación tiene de que su cadera empeore en el futuro?",
+                "33. ¿Qué tan limitado se siente en la vida debido a su cadera?"
+            ]
+        }
+    ];
+
+    // Inyectar Preguntas en el DOM
+    const containerPreguntas = document.getElementById('ihot-questions');
+    let htmlContent = "";
+    let qIndex = 1;
+
+    dominios.forEach(dominio => {
+        htmlContent += `<div class="domain-title">${dominio.titulo}</div>`;
+        
+        dominio.preguntas.forEach(pregunta => {
+            htmlContent += `
+            <div class="question-item">
+                <div class="question-text">${pregunta}</div>
+                <div class="slider-labels">
+                    <span>${dominio.extremos.peor} (0)</span>
+                    <span>${dominio.extremos.mejor} (100)</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="q${qIndex}" min="0" max="100" value="50" oninput="updateSliderValue('val${qIndex}', this.value)">
+                    <div class="slider-output" id="val${qIndex}">50</div>
+                </div>
+            </div>`;
+            qIndex++;
+        });
+    });
+
+    containerPreguntas.innerHTML = htmlContent;
+
+    function updateSliderValue(id, val) {
+        document.getElementById(id).innerText = val;
+    }
+
+    // Cálculo e Interpretación
+    function calcular() {
+        let sum = 0;
+        let answeredCount = 33; // iHOT permite saltar algunas, pero para este formato asumimos 33.
+
+        for (let i = 1; i <= 33; i++) {
+            let val = parseInt(document.getElementById('q' + i).value);
+            sum += val;
+        }
+
+        const promedio = sum / answeredCount;
+        const resPuntaje = document.getElementById('res-puntaje');
+        const resRiesgo = document.getElementById('res-riesgo');
+        const notaClinica = document.getElementById('nota-clinica');
+        const cajaResultado = document.getElementById('caja-resultado');
+        const cadera = document.getElementById('ladoCadera').value;
+
+        resPuntaje.innerText = promedio.toFixed(1);
+
+        if (promedio >= 85) {
+            resRiesgo.innerText = "FUNCIÓN ÓPTIMA / EXCELENTE";
+            resRiesgo.style.backgroundColor = "#d5f5e3";
+            resRiesgo.style.color = "#1e8449";
+            cajaResultado.style.borderLeftColor = "#27ae60";
+            notaClinica.innerHTML = `<strong>Interpretación:</strong> La cadera ${cadera} presenta un <strong>${promedio.toFixed(1)}%</strong> de función global. El paciente tolera demandas deportivas y de la vida diaria sin síntomas limitantes significativos. En un contexto post-operatorio, este es un valor ideal que respalda el Return to Sport (RTS).`;
+        } 
+        else if (promedio >= 50) {
+            resRiesgo.innerText = "DISFUNCIÓN MODERADA";
+            resRiesgo.style.backgroundColor = "#fcf3cf";
+            resRiesgo.style.color = "#b9770e";
+            cajaResultado.style.borderLeftColor = "#f39c12";
+            notaClinica.innerHTML = `<strong>Interpretación:</strong> La cadera ${cadera} presenta un <strong>${promedio.toFixed(1)}%</strong> de función. Existe irritabilidad mecánica moderada. El paciente puede realizar AVDs pero los síntomas afloran ante cargas en rangos profundos (flexión/rotación interna) o durante el deporte de impacto. Requiere progresión en control lumbopélvico y fortalecimiento del complejo abductor/rotador.`;
+        } 
+        else {
+            resRiesgo.innerText = "DISFUNCIÓN SEVERA";
+            resRiesgo.style.backgroundColor = "#fadbd8";
+            resRiesgo.style.color = "#c0392b";
+            cajaResultado.style.borderLeftColor = "#e74c3c";
+            notaClinica.innerHTML = `<strong>Interpretación:</strong> La cadera ${cadera} presenta un <strong>${promedio.toFixed(1)}%</strong> de función global. Indica un fuerte impacto en la calidad de vida, dolor al descanso/noche y alta limitación física. Es característico de cuadros agudos de pinzamiento fémoroacetabular, daño labral activo o estadios pre-quirúrgicos. Priorizar control de carga, ROM sin dolor y manejo de la inflamación.`;
+        }
+
+        const resContainer = document.getElementById('resultado-container');
+        resContainer.style.display = "block";
+        resContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    async function guardarPDF() {
+        window.scrollTo(0, 0);
+
+        let nombreRaw = document.getElementById('nombrePaciente').value.trim();
+        let nombreFormateado = nombreRaw ? nombreRaw.replace(/\s+/g, '_') : "Paciente";
+        const fecha = document.getElementById('fechaEval').value;
+        const filename = `${fecha}_${nombreFormateado}_iHOT33.pdf`;
+        
+        const element = document.getElementById('documento-area');
+        
+        const buttons = document.getElementById('seccion-botones');
+        const toggles = document.getElementById('seccion-toggles');
+        buttons.style.display = 'none';
+        toggles.style.display = 'none';
+
+        const opt = {
+            margin: [15, 15, 15, 15],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, scrollY: 0, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } catch (e) {
+            console.error("PDF Error:", e);
+            alert("Error al generar el PDF. Por favor, usa el botón 'Imprimir'.");
+        } finally {
+            buttons.style.display = 'flex';
+            toggles.style.display = 'flex';
+        }
+    }
+</script>
+
+</body>
+</html>
