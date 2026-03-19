@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAIT - Inestabilidad Funcional de Tobillo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 850px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .version-tag {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #95a5a6;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+        .indicacion-box {
+            background-color: #e8f6f3;
+            border-left: 5px solid #1abc9c;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+        .indicacion-box h4 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #16a085;
+        }
+        .indicacion-box p {
+            margin: 0;
+            font-size: 0.95em;
+        }
+        
+        /* Botones de Paneles Desplegables */
+        .toggle-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .btn-toggle {
+            background-color: #f8f9fa;
+            color: #34495e;
+            border: 1px solid #dee2e6;
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 200px;
+            transition: all 0.2s ease;
+        }
+        .btn-toggle:hover {
+            background-color: #e9ecef;
+        }
+        .btn-toggle.active {
+            background-color: #34495e;
+            color: white;
+            border-color: #34495e;
+        }
+        
+        /* Estilo de los Paneles Desplegables */
+        .info-panel {
+            display: none;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-left: 5px solid #34495e;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .info-panel.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            margin-top: 25px;
+        }
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-size: 0.9em;
+        }
+        .input-group input, .input-group select {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus, .input-group select:focus {
+            border-color: #3498db;
+        }
+
+        .question-item {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 15px;
+            border-left: 4px solid #34495e;
+        }
+        .question-text {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .question-item select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #bdc3c7;
+            background-color: #fdfefe;
+            font-size: 14.5px;
+            cursor: pointer;
+        }
+        
+        /* Estilos de Resultados */
+        #resultado-container {
+            margin-top: 30px;
+            display: none;
+            page-break-inside: avoid;
+        }
+        .resultado-box {
+            padding: 25px;
+            background-color: #ebf5fb;
+            border-radius: 8px;
+            border-left: 6px solid #3498db;
+            margin-bottom: 20px;
+        }
+        
+        .score-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
+        .score-value {
+            font-size: 38px;
+            font-weight: bold;
+            color: #2980b9;
+        }
+        .score-max {
+            font-size: 18px;
+            color: #7f8c8d;
+        }
+        .score-risk {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        .clinica-note {
+            color: #34495e;
+            font-size: 0.95em;
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            border-left: 4px solid #3498db;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        button.btn-action {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: opacity 0.2s;
+        }
+        button.btn-action:hover { opacity: 0.9; }
+        .btn-calc { background-color: #3498db; }
+        .btn-pdf { background-color: #27ae60; }
+        .btn-print { background-color: #7f8c8d; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 20px 15px; }
+            .score-display { flex-direction: column; text-align: center; gap: 10px; }
+            .actions { flex-direction: column; }
+            button.btn-action { width: 100%; }
+        }        
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; padding: 0; }
+            .actions, .toggle-buttons, .version-tag { display: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="documento-area">
+    <div class="version-tag">MSK / Ortopedia - CAIT v1.0</div>
+    <h1>Cuestionario CAIT</h1>
+    <div class="subtitle">Cumberland Ankle Instability Tool (Versión Español)</div>
+
+    <div class="indicacion-box">
+        <h4>📌 Indicación Clínica</h4>
+        <p>El CAIT es una herramienta validada de 9 ítems diseñada para medir la severidad de la <strong>Inestabilidad Funcional del Tobillo (FAI)</strong>. Es ideal para pacientes con antecedentes de esguinces, sensación subjetiva de que el tobillo "cede" o "se va", y dolor crónico. Puntúa de 0 a 30 (menor puntaje = mayor inestabilidad).</p>
+    </div>
+    
+    <div class="toggle-buttons" id="seccion-toggles">
+        <button class="btn-toggle" onclick="togglePanel('panel-clinico', this)">👨‍⚕️ Interpretación (Cortes)</button>
+        <button class="btn-toggle" onclick="togglePanel('panel-paciente', this)">🗣️ Instrucciones Paciente</button>
+    </div>
+
+    <div id="panel-clinico" class="info-panel">
+        <h3 style="margin-top:0; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">Interpretación de Resultados</h3>
+        <ul style="padding-left: 20px; color: #444;">
+            <li><strong>≥ 28 Puntos:</strong> Tobillo Normal (Estable).</li>
+            <li><strong>25 a 27 Puntos:</strong> Inestabilidad Funcional Leve / Borderline.</li>
+            <li><strong>≤ 24 Puntos:</strong> Inestabilidad Funcional Severa (Alto riesgo de esguince recurrente y limitación deportiva).</li>
+        </ul>
+        <p><em>Referencia: Hiller CE, et al. The Cumberland Ankle Instability Tool: a report of validity and reliability testing (2006).</em></p>
+    </div>
+
+    <div id="panel-paciente" class="info-panel" style="border-left-color: #2980b9;">
+        <h3 style="margin-top:0; color: #2980b9; border-bottom: 1px solid #eee; padding-bottom: 10px;">Instrucciones para el Paciente</h3>
+        <blockquote style="background: #f4f6f7; padding: 15px; border-radius: 6px; font-style: italic; color: #2c3e50; border-left: 3px solid #bdc3c7; margin:0;">
+            "Por favor, responda a las siguientes 9 preguntas pensando únicamente en el tobillo que estamos evaluando en este momento. Seleccione la opción que mejor describa cómo se siente su articulación en su vida diaria y al realizar deporte."
+        </blockquote>
+    </div>
+
+    <div class="section-title">Datos del Paciente</div>
+    <div class="grid-layout">
+        <div class="input-group">
+            <label>Nombre y Apellido</label>
+            <input type="text" id="nombrePaciente" placeholder="Nombre completo">
+        </div>
+        <div class="input-group">
+            <label>Fecha de Evaluación</label>
+            <input type="date" id="fechaEval">
+        </div>
+        <div class="input-group">
+            <label>Tobillo Evaluado</label>
+            <select id="ladoTobillo">
+                <option value="Derecho">Derecho</option>
+                <option value="Izquierdo">Izquierdo</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="section-title">Cuestionario CAIT</div>
+
+    <div class="question-item">
+        <div class="question-text">1. ¿Tiene dolor en el tobillo?</div>
+        <select id="q1">
+            <option value="" disabled selected>Seleccione una respuesta...</option>
+            <option value="5">Nunca (5 pts)</option>
+            <option value="4">Al realizar actividades deportivas (4 pts)</option>
+            <option value="3">Al correr en superficies irregulares (3 pts)</option>
+            <option value="2">Al correr en superficies planas (2 pts)</option>
+            <option value="1">Al caminar en superficies irregulares (1 pt)</option>
+            <option value="0">Al caminar en superficies planas (0 pts)</option>
+        </select>
+    </div>
+
+    <div class="question-item">
+        <div class="question-text">2. Siento que el tobillo es inestable ("se me va" o cede):</div>
+        <select id="q2">
+            <option value="" disabled selected>Seleccione una respuesta...</option>
+            <option value="4">Nunca (4 pts)</option>
+            <option value="3">Al hacer deporte con saltos o cambios de dirección (3 pts)</option>
+            <option value="2">Al correr en línea recta (2 pts)</option>
+            <option value="1">Al caminar en superficies irregulares (1 pt)</option>
+            <option value="0">Al caminar en superficies planas (0 pts)</option>
+        </select>
+    </div>
+
+    <div class="question-item">
+        <div class="question-text">3. ¿Con qué frecuencia se dobla o tuerce el tobillo?</div>
+        <select id="q3">
+            <option value="" disabled selected>Seleccione una respuesta...</option>
+            <option value="3">Nunca (3 pts)</option>
+            <option value="2">Una vez al año o menos (2 pts)</option>
+            <option value="1">Una a dos veces al mes (1 pt)</option>
+            <option value="0">Más de dos veces al mes (0 pts)</option>
+        </select>
+    </div>
+
+    <div class="question-item">
+        <div class="question-text">4. Cuando se dobla o tuerce el tobillo, ¿con qué frecuencia siente que se va a hacer un esguince?</div>
+        <select id="q4">
+            <option value="" disabled selected>Seleccione una respuesta...</option>
+            <option value="3">Nunca me doblo el tobillo (3 pts)</option>
+            <option value="2">Rara vez o nunca (2 pts)</option>
+            <option value="1">A veces (1 pt)</option>
+            <option value="0">Siempre (0 pts)</option>
+        </select>
+    </div>
+
+    <div class="question-item">
+        <div class="question-text">5. Cuando se dobla el tobillo, ¿cuán grave o severo es el esguince?</div>
+        <select id="q5">
+            <option value="" disabled selected>Seleccione una respuesta...</option>
+            <option value="3">Nunca me doblo el tobillo (3 pts)</option>
+            <option value="2">Leve (2 pts)</option>
+            <option value="1">Moderado (1 pt)</option>
+            <option value="0">Severo / Grave (0 pts)</option>
+        </select>
+    </div>
+
+    <div class="question-item">
+        <div class="question-text">6. Cuando se dobla el tobillo, ¿cuánto tiempo necesita para volver a sus actividades normales?</div>
+        <select id="q6">
+            <option value="" disabled selected>Seleccione una respuesta...</option>
+            <option value="3">Nunca me doblo el tobillo (3 pts)</option>
+            <option value="2">Menos de 1 día / Inmediato (2 pts)</option>
+            <option value="1">1 a 2 días (1 pt)</option>
+            <option value="0">Más de 2 días (0 pts)</option>
+        </select>
+    </div>
+
+    <div class="question-item">
+        <div class="question-text">7. Siento inestabilidad ("que se me va") en el tobillo al realizar las siguientes actividades:</div>
+        <select id="q7">
+            <option value="" disabled selected>Seleccione una respuesta...</option>
+            <option value="4">Nunca siento inestabilidad (4 pts)</option>
+            <option value="3">Deportes con cambios de dirección y saltos (3 pts)</option>
+            <option value="2">Corriendo en línea recta (2 pts)</option>
+            <option value="1">Caminando en superficies irregulares (1 pt)</option>
+            <option value="0">Caminando en superficies planas (0 pts)</option>
+        </select>
+    </div>
+
+    <div class="question-item">
+        <div class="question-text">8. Siento inestabilidad en el tobillo al BAJAR escaleras:</div>
+        <select id="q8">
+            <option value="" disabled selected>Seleccione una respuesta...</option>
+            <option value="3">Nunca (3 pts)</option>
+            <option value="2">A veces (2 pts)</option>
+            <option value="1">Frecuentemente / Casi siempre (1 pt)</option>
+            <option value="0">Siempre (0 pts)</option>
+        </select>
+    </div>
+
+    <div class="question-item">
+        <div class="question-text">9. Siento inestabilidad en el tobillo al SUBIR escaleras:</div>
+        <select id="q9">
+            <option value="" disabled selected>Seleccione una respuesta...</option>
+            <option value="2">Nunca (2 pts)</option>
+            <option value="1">A veces (1 pt)</option>
+            <option value="0">Siempre (0 pts)</option>
+        </select>
+    </div>
+
+
+    <div id="resultado-container">
+        <div class="section-title">Análisis e Interpretación</div>
+        <div class="resultado-box" id="caja-resultado">
+            <div class="score-display">
+                <div>
+                    <div style="font-size: 0.85em; color: #7f8c8d; font-weight: 600; text-transform: uppercase;">Puntaje Total CAIT</div>
+                    <span class="score-value" id="res-puntaje">0</span><span class="score-max"> / 30</span>
+                </div>
+                <div class="score-risk" id="res-riesgo">Estado</div>
+            </div>
+            
+            <div class="clinica-note" id="nota-clinica">
+                </div>
+        </div>
+    </div>
+
+    <div class="actions" id="seccion-botones">
+        <button class="btn-action btn-calc" onclick="calcular()">Calcular Puntaje</button>
+        <button class="btn-action btn-pdf" id="btnDescargar" onclick="guardarPDF()">Descargar PDF</button>
+        <button class="btn-action btn-print" id="btnImprimir" onclick="window.print()">Imprimir</button>
+    </div>
+</div>
+
+<script>
+    // Inicializar fecha
+    document.getElementById('fechaEval').valueAsDate = new Date();
+
+    function togglePanel(panelId, btnElement) {
+        const panel = document.getElementById(panelId);
+        if (panel.classList.contains('show')) {
+            panel.classList.remove('show');
+            btnElement.classList.remove('active');
+        } else {
+            document.querySelectorAll('.info-panel').forEach(p => p.classList.remove('show'));
+            document.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
+            panel.classList.add('show');
+            btnElement.classList.add('active');
+        }
+    }
+
+    function calcular() {
+        let total = 0;
+        let incompletas = false;
+
+        // Recorrer las 9 preguntas
+        for (let i = 1; i <= 9; i++) {
+            let select = document.getElementById('q' + i);
+            if (select.value === "") {
+                incompletas = true;
+                select.parentElement.style.borderLeftColor = "#e74c3c"; 
+            } else {
+                total += parseInt(select.value);
+                select.parentElement.style.borderLeftColor = "#34495e"; 
+            }
+        }
+
+        if (incompletas) {
+            alert("Por favor, responda todas las preguntas (1 a 9) para calcular el puntaje exacto.");
+            return;
+        }
+
+        const resPuntaje = document.getElementById('res-puntaje');
+        const resRiesgo = document.getElementById('res-riesgo');
+        const notaClinica = document.getElementById('nota-clinica');
+        const cajaResultado = document.getElementById('caja-resultado');
+        const tobillo = document.getElementById('ladoTobillo').value;
+
+        resPuntaje.innerText = total;
+
+        // Lógica de Cortes (≤ 24 FAI severo, 25-27 Leve, ≥ 28 Normal)
+        if (total >= 28) {
+            resRiesgo.innerText = "NORMAL / ESTABLE";
+            resRiesgo.style.backgroundColor = "#d5f5e3";
+            resRiesgo.style.color = "#1e8449";
+            cajaResultado.style.borderLeftColor = "#27ae60";
+            
+            notaClinica.innerHTML = `<strong>Interpretación:</strong> El tobillo ${tobillo} del paciente presenta un puntaje de <strong>${total} puntos</strong>, lo cual se clasifica como clínicamente normal. No existe evidencia subjetiva de inestabilidad funcional significativa.`;
+        } 
+        else if (total >= 25) {
+            resRiesgo.innerText = "INESTABILIDAD LEVE";
+            resRiesgo.style.backgroundColor = "#fcf3cf";
+            resRiesgo.style.color = "#b9770e";
+            cajaResultado.style.borderLeftColor = "#f39c12";
+            
+            notaClinica.innerHTML = `<strong>Interpretación:</strong> El tobillo ${tobillo} presenta <strong>${total} puntos</strong> (≤ 27 es el punto de corte). Esto indica una <strong>Inestabilidad Funcional de Tobillo (FAI) leve a moderada</strong>. Se sugiere abordaje preventivo, enfocándose en el déficit propioceptivo y control neuromuscular periférico.`;
+        } 
+        else {
+            resRiesgo.innerText = "INESTABILIDAD SEVERA";
+            resRiesgo.style.backgroundColor = "#fadbd8";
+            resRiesgo.style.color = "#c0392b";
+            cajaResultado.style.borderLeftColor = "#e74c3c";
+            
+            notaClinica.innerHTML = `<strong>Interpretación:</strong> El tobillo ${tobillo} presenta <strong>${total} puntos</strong>. Un puntaje ≤ 24 confirma una <strong>Inestabilidad Funcional Severa</strong>. El paciente tiene un alto riesgo de esguinces recurrentes, alteración de la cinemática articular y microtrauma crónico. Se requiere rehabilitación focalizada obligatoria (y descartar inestabilidad mecánica ligamentosa estructural).`;
+        }
+
+        // Mostrar Resultados
+        const resContainer = document.getElementById('resultado-container');
+        resContainer.style.display = "block";
+        resContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    async function guardarPDF() {
+        window.scrollTo(0, 0);
+
+        let nombreRaw = document.getElementById('nombrePaciente').value.trim();
+        let nombreFormateado = nombreRaw ? nombreRaw.replace(/\s+/g, '_') : "Paciente";
+        const fecha = document.getElementById('fechaEval').value;
+        const filename = `${fecha}_${nombreFormateado}_CAIT.pdf`;
+        
+        const element = document.getElementById('documento-area');
+        
+        const buttons = document.getElementById('seccion-botones');
+        const toggles = document.getElementById('seccion-toggles');
+        buttons.style.display = 'none';
+        toggles.style.display = 'none';
+
+        const opt = {
+            margin: [15, 15, 15, 15],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, scrollY: 0, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } catch (e) {
+            console.error("PDF Error:", e);
+            alert("Error al generar el PDF. Por favor, usa el botón 'Imprimir'.");
+        } finally {
+            buttons.style.display = 'flex';
+            toggles.style.display = 'flex';
+        }
+    }
+</script>
+
+</body>
+</html>
