@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Y-Balance Test - Riesgo Lesional MSK</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .version-tag {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #95a5a6;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+        .indicacion-box {
+            background-color: #e8f6f3;
+            border-left: 5px solid #1abc9c;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+        .indicacion-box h4 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #16a085;
+        }
+        .indicacion-box p {
+            margin: 0;
+            font-size: 0.95em;
+        }
+        
+        /* Botones de Paneles Desplegables */
+        .toggle-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .btn-toggle {
+            background-color: #f8f9fa;
+            color: #34495e;
+            border: 1px solid #dee2e6;
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 200px;
+            transition: all 0.2s ease;
+        }
+        .btn-toggle:hover {
+            background-color: #e9ecef;
+        }
+        .btn-toggle.active {
+            background-color: #34495e;
+            color: white;
+            border-color: #34495e;
+        }
+        
+        /* Estilo de los Paneles Desplegables */
+        .info-panel {
+            display: none;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-left: 5px solid #34495e;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .info-panel.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            margin-top: 25px;
+        }
+        
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .side-panel {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .side-title {
+            text-align: center;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .side-right { border-top: 4px solid #3498db; }
+        .side-left { border-top: 4px solid #e74c3c; }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-size: 0.9em;
+        }
+        .input-group input, .input-group select {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            border-color: #3498db;
+        }
+        .input-highlight {
+            background-color: #fdfefe;
+            border-color: #bdc3c7;
+        }
+        
+        /* Estilos de Resultados */
+        #resultado-container {
+            margin-top: 30px;
+            display: none;
+            page-break-inside: avoid;
+        }
+        .resultado-box {
+            padding: 25px;
+            background-color: #ebf5fb;
+            border-radius: 8px;
+            border-left: 6px solid #3498db;
+            margin-bottom: 20px;
+        }
+        
+        .scores-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .score-item {
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .score-value {
+            font-size: 26px;
+            font-weight: bold;
+            color: #2980b9;
+            margin-top: 5px;
+        }
+        .score-label {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        table.diff-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        table.diff-table th, table.diff-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        table.diff-table th {
+            background-color: #f8f9fa;
+            color: #34495e;
+            font-size: 0.9em;
+        }
+        
+        .clinica-note {
+            color: #34495e;
+            font-size: 0.95em;
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            border-left: 4px solid #3498db;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        button.btn-action {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: opacity 0.2s;
+        }
+        button.btn-action:hover { opacity: 0.9; }
+        .btn-calc { background-color: #3498db; }
+        .btn-pdf { background-color: #27ae60; display: none; }
+        .btn-print { background-color: #7f8c8d; display: none; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 20px 15px; }
+            .scores-grid { grid-template-columns: 1fr; }
+            .actions { flex-direction: column; }
+            button.btn-action { width: 100%; }
+            .grid-layout { grid-template-columns: 1fr; }
+        }        
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; padding: 0; }
+            .actions, .toggle-buttons, .version-tag { display: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="documento-area">
+    <div class="version-tag">Creado por Ociel Munoz - MSK / Deportivo - YBT v1</div>
+    <h1>Y-Balance Test (YBT)</h1>
+    <div class="subtitle">Evaluación de Control Neuromuscular Dinámico y Riesgo Lesional</div>
+
+    <div class="indicacion-box">
+        <h4>📌 Indicación Clínica</h4>
+        <p>Prueba fundamental en población físicamente activa para objetivar asimetrías de extremidad inferior y déficit de control motor. Utilizada extensamente para determinar el riesgo de esguinces de tobillo, lesiones no-contacto de rodilla (LCA) y como criterio objetivo para el alta kinésica (Return to Play).</p>
+    </div>
+    
+    <div class="toggle-buttons" id="seccion-toggles">
+        <button class="btn-toggle" onclick="togglePanel('panel-clinico', this)">👨‍⚕️ Protocolo de Medición</button>
+        <button class="btn-toggle" onclick="togglePanel('panel-paciente', this)">🗣️ Instrucciones Paciente</button>
+    </div>
+
+    <div id="panel-clinico" class="info-panel">
+        <h3 style="margin-top:0; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">Protocolo para el Clínico</h3>
+        <ul style="padding-left: 20px; color: #444;">
+            <li><strong>Preparación:</strong> Paciente descalzo. Realizar 3 a 6 intentos de práctica por dirección para anular el sesgo de aprendizaje.</li>
+            <li><strong>Longitud de Extremidad (LL):</strong> Medida obligatoria en decúbito supino, desde la Espina Ilíaca Anterosuperior (EIAS) hasta el borde distal del maléolo medial. Se usa para normalizar la puntuación.</li>
+            <li><strong>Ejecución:</strong> El paciente se apoya a pie cojo en el centro. Debe empujar el indicador (o tocar la cinta de medir) lo más lejos posible en dirección Anterior, Posteromedial y Posterolateral, y retornar a la posición inicial controladamente.</li>
+            <li><strong>Intento Nulo:</strong> Si el paciente apoya peso en el pie de alcance, pierde el equilibrio, levanta el talón del pie de apoyo, o no puede retornar a la posición inicial sin ayuda.</li>
+            <li><em>Registre el mejor intento de 3 mediciones reales por dirección (en centímetros).</em></li>
+        </ul>
+    </div>
+
+    <div id="panel-paciente" class="info-panel" style="border-left-color: #2980b9;">
+        <h3 style="margin-top:0; color: #2980b9; border-bottom: 1px solid #eee; padding-bottom: 10px;">Instrucciones para el Paciente</h3>
+        <blockquote style="background: #f4f6f7; padding: 15px; border-radius: 6px; font-style: italic; color: #2c3e50; border-left: 3px solid #bdc3c7; margin:0;">
+            "Mantenga las manos apoyadas firmemente en su cintura durante toda la prueba. Párese en el centro de la marca con un pie.<br><br>
+            Con la punta del pie libre, alcance lo más lejos posible en la dirección indicada deslizando suavemente la caja (o tocando la línea). No apoye su peso en el pie que se estira.<br><br>
+            Luego de alcanzar la máxima distancia, debe volver a la posición de equilibrio inicial con control. Si pierde el equilibrio, la prueba no cuenta y la repetiremos."
+        </blockquote>
+    </div>
+
+    <div class="section-title">Datos del Paciente</div>
+    <div class="grid-layout">
+        <div class="input-group">
+            <label>Nombre y Apellido</label>
+            <input type="text" id="nombrePaciente" placeholder="Nombre completo">
+        </div>
+        <div class="input-group">
+            <label>Fecha de Evaluación</label>
+            <input type="date" id="fechaEval">
+        </div>
+        <div class="input-group">
+            <label>Edad (años)</label>
+            <input type="number" id="edad" min="1" max="120">
+        </div>
+        <div class="input-group">
+            <label>Deporte / Actividad</label>
+            <input type="text" id="deporte" placeholder="Ej: Fútbol, CrossFit...">
+        </div>
+    </div>
+
+    <div class="section-title">Registro de Mediciones (Mejor intento en cm)</div>
+    <div class="grid-layout">
+        
+        <div class="side-panel side-right">
+            <div class="side-title">🦵 Pierna de Apoyo: DERECHA</div>
+            <div class="input-group">
+                <label>📏 Longitud Pierna Derecha (cm)</label>
+                <input type="number" id="long_R" min="50" step="0.1" class="input-highlight" placeholder="De EIAS a Maléolo">
+            </div>
+            <div class="input-group">
+                <label>⬆️ Alcance Anterior (cm)</label>
+                <input type="number" id="ant_R" min="0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>↙️ Alcance Posteromedial (cm)</label>
+                <input type="number" id="pm_R" min="0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>↘️ Alcance Posterolateral (cm)</label>
+                <input type="number" id="pl_R" min="0" step="0.1">
+            </div>
+        </div>
+
+        <div class="side-panel side-left">
+            <div class="side-title">🦵 Pierna de Apoyo: IZQUIERDA</div>
+            <div class="input-group">
+                <label>📏 Longitud Pierna Izquierda (cm)</label>
+                <input type="number" id="long_L" min="50" step="0.1" class="input-highlight" placeholder="De EIAS a Maléolo">
+            </div>
+            <div class="input-group">
+                <label>⬆️ Alcance Anterior (cm)</label>
+                <input type="number" id="ant_L" min="0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>↘️ Alcance Posteromedial (cm)</label>
+                <input type="number" id="pm_L" min="0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>↙️ Alcance Posterolateral (cm)</label>
+                <input type="number" id="pl_L" min="0" step="0.1">
+            </div>
+        </div>
+        
+    </div>
+
+    <div id="resultado-container">
+        <div class="section-title">Análisis Biomecánico y Asimetrías</div>
+        <div class="resultado-box" id="caja-resultado">
+            
+            <div class="scores-grid">
+                <div class="score-item" style="border-top: 4px solid #3498db;">
+                    <div class="score-label">Puntaje Compuesto Derecho</div>
+                    <div class="score-value" id="res-comp-R">0%</div>
+                </div>
+                <div class="score-item" style="border-top: 4px solid #e74c3c;">
+                    <div class="score-label">Puntaje Compuesto Izquierdo</div>
+                    <div class="score-value" id="res-comp-L">0%</div>
+                </div>
+                <div class="score-item" id="caja-alerta">
+                    <div class="score-label">Estado de Riesgo</div>
+                    <div class="score-value" id="res-riesgo" style="font-size: 20px;">-</div>
+                </div>
+            </div>
+
+            <table class="diff-table">
+                <thead>
+                    <tr>
+                        <th>Dirección de Alcance</th>
+                        <th>Diferencia Absoluta (Asimetría)</th>
+                        <th>Estado Clínico</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Anterior</strong></td>
+                        <td id="diff-ant">0.0 cm</td>
+                        <td id="status-ant">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Posteromedial</strong></td>
+                        <td id="diff-pm">0.0 cm</td>
+                        <td id="status-pm">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Posterolateral</strong></td>
+                        <td id="diff-pl">0.0 cm</td>
+                        <td id="status-pl">-</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="clinica-note" id="nota-clinica">
+                </div>
+        </div>
+    </div>
+
+    <div class="actions" id="seccion-botones">
+        <button class="btn-action btn-calc" onclick="calcular()">Calcular Índices</button>
+        <button class="btn-action btn-pdf" id="btnDescargar" onclick="guardarPDF()">Descargar PDF</button>
+        <button class="btn-action btn-print" id="btnImprimir" onclick="window.print()">Imprimir</button>
+    </div>
+</div>
+
+<script>
+    document.getElementById('fechaEval').valueAsDate = new Date();
+
+    function togglePanel(panelId, btnElement) {
+        const panel = document.getElementById(panelId);
+        if (panel.classList.contains('show')) {
+            panel.classList.remove('show');
+            btnElement.classList.remove('active');
+        } else {
+            document.querySelectorAll('.info-panel').forEach(p => p.classList.remove('show'));
+            document.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
+            panel.classList.add('show');
+            btnElement.classList.add('active');
+        }
+    }
+
+    function calcular() {
+        // Obtener valores (Derecha)
+        const ll_r = parseFloat(document.getElementById('long_R').value);
+        const ant_r = parseFloat(document.getElementById('ant_R').value);
+        const pm_r = parseFloat(document.getElementById('pm_R').value);
+        const pl_r = parseFloat(document.getElementById('pl_R').value);
+
+        // Obtener valores (Izquierda)
+        const ll_l = parseFloat(document.getElementById('long_L').value);
+        const ant_l = parseFloat(document.getElementById('ant_L').value);
+        const pm_l = parseFloat(document.getElementById('pm_L').value);
+        const pl_l = parseFloat(document.getElementById('pl_L').value);
+
+        // Validación
+        if (!ll_r || !ll_l || isNaN(ant_r) || isNaN(pm_r) || isNaN(pl_r) || isNaN(ant_l) || isNaN(pm_l) || isNaN(pl_l)) {
+            alert("Por favor, complete la longitud de ambas piernas y todos los alcances.");
+            return;
+        }
+
+        // Fórmulas de Puntaje Compuesto Normalizado: (Suma de los 3 alcances / (3 * Longitud Pierna)) * 100
+        const comp_R = ((ant_r + pm_r + pl_r) / (ll_r * 3)) * 100;
+        const comp_L = ((ant_l + pm_l + pl_l) / (ll_l * 3)) * 100;
+
+        document.getElementById('res-comp-R').innerText = comp_R.toFixed(1) + "%";
+        document.getElementById('res-comp-L').innerText = comp_L.toFixed(1) + "%";
+
+        // Cálculo de Diferencias Absolutas (Asimetrías)
+        const diff_ant = Math.abs(ant_r - ant_l);
+        const diff_pm = Math.abs(pm_r - pm_l);
+        const diff_pl = Math.abs(pl_r - pl_l);
+
+        document.getElementById('diff-ant').innerText = diff_ant.toFixed(1) + " cm";
+        document.getElementById('diff-pm').innerText = diff_pm.toFixed(1) + " cm";
+        document.getElementById('diff-pl').innerText = diff_pl.toFixed(1) + " cm";
+
+        // Análisis Clínico de Asimetrías
+        // Umbrales basados en evidencia: > 4cm en Anterior es crítico. > 6cm en PM/PL es advertencia clínica.
+        let riesgoAlto = false;
+        let alertaText = "";
+
+        const statusAnt = document.getElementById('status-ant');
+        if (diff_ant > 4) {
+            statusAnt.innerHTML = "⚠️ Asimetría Patológica (>4cm)";
+            statusAnt.style.color = "#e74c3c";
+            riesgoAlto = true;
+            alertaText += "<li>La asimetría > 4 cm en la dirección <strong>Anterior</strong> está fuertemente correlacionada (hasta 2.5x más probabilidad) con lesiones de extremidad inferior no-contacto.</li>";
+        } else {
+            statusAnt.innerHTML = "✅ Normal";
+            statusAnt.style.color = "#27ae60";
+        }
+
+        const statusPm = document.getElementById('status-pm');
+        if (diff_pm > 6) {
+            statusPm.innerHTML = "⚠️ Asimetría Significativa (>6cm)";
+            statusPm.style.color = "#e74c3c";
+            riesgoAlto = true;
+            alertaText += "<li>Asimetría importante en dirección Posteromedial. Evaluar fuerza de glúteo medio/mayor y estabilizadores lumbopélvicos.</li>";
+        } else {
+            statusPm.innerHTML = "✅ Normal";
+            statusPm.style.color = "#27ae60";
+        }
+
+        const statusPl = document.getElementById('status-pl');
+        if (diff_pl > 6) {
+            statusPl.innerHTML = "⚠️ Asimetría Significativa (>6cm)";
+            statusPl.style.color = "#e74c3c";
+            riesgoAlto = true;
+            alertaText += "<li>Asimetría importante en dirección Posterolateral. Indica déficit en el control rotacional del miembro de apoyo.</li>";
+        } else {
+            statusPl.innerHTML = "✅ Normal";
+            statusPl.style.color = "#27ae60";
+        }
+
+        // Estado Global
+        const cajaAlerta = document.getElementById('caja-alerta');
+        const resRiesgo = document.getElementById('res-riesgo');
+        const notaClinica = document.getElementById('nota-clinica');
+
+        if (riesgoAlto) {
+            cajaAlerta.style.borderTop = "4px solid #e74c3c";
+            resRiesgo.innerText = "ALTO RIESGO";
+            resRiesgo.style.color = "#e74c3c";
+            
+            notaClinica.innerHTML = `<strong>Interpretación Clínica:</strong> Se detectaron asimetrías de control motor patológicas.<br><ul style="margin-top:8px;">${alertaText}</ul><strong>Conducta:</strong> No se recomienda el retorno al deporte competitivo o alta demanda clínica sin un bloque previo de corrección de asimetrías y entrenamiento neuromuscular unilateral.`;
+        } else {
+            cajaAlerta.style.borderTop = "4px solid #27ae60";
+            resRiesgo.innerText = "RIESGO ACEPTABLE";
+            resRiesgo.style.color = "#27ae60";
+
+            notaClinica.innerHTML = `<strong>Interpretación Clínica:</strong> El paciente no presenta asimetrías lesionales significativas en los alcances direccionales. (Diferencia anterior < 4cm y posteriores < 6cm). <br><br>El control neuromuscular dinámico es simétrico, lo cual es un excelente indicador protector. Evaluar el Puntaje Compuesto con la normativa específica del deporte (generalmente > 94% en mujeres y > 89% en hombres).`;
+        }
+
+        // Mostrar UI
+        const resContainer = document.getElementById('resultado-container');
+        resContainer.style.display = "block";
+        document.getElementById('btnDescargar').style.display = "block";
+        document.getElementById('btnImprimir').style.display = "block";
+        
+        resContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    async function guardarPDF() {
+        window.scrollTo(0, 0);
+
+        let nombreRaw = document.getElementById('nombrePaciente').value.trim();
+        let nombreFormateado = nombreRaw ? nombreRaw.replace(/\s+/g, '_') : "Paciente";
+        const fecha = document.getElementById('fechaEval').value;
+        const filename = `${fecha}_${nombreFormateado}_YBalance.pdf`;
+        
+        const element = document.getElementById('documento-area');
+        
+        const buttons = document.getElementById('seccion-botones');
+        const toggles = document.getElementById('seccion-toggles');
+        buttons.style.display = 'none';
+        toggles.style.display = 'none';
+
+        const opt = {
+            margin: [15, 15, 15, 15],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, scrollY: 0, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } catch (e) {
+            console.error("PDF Error:", e);
+            alert("Error al generar el PDF. Por favor, usa el botón 'Imprimir'.");
+        } finally {
+            buttons.style.display = 'flex';
+            toggles.style.display = 'flex';
+        }
+    }
+</script>
+
+</body>
+</html>
