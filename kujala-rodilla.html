@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenter - Escala de Kujala (AKPS)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .version-tag {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #7f8c8d;
+            background: #f4f6f6;
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #e5e8e8;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 35px;
+            font-size: 16px;
+        }
+        .patient-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+        .input-group input {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+        .instrucciones {
+            background-color: #eaf2f8;
+            color: #2471a3;
+            padding: 15px;
+            border-left: 5px solid #2980b9;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .question-block {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #e5e8e8;
+            border-radius: 8px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        .question-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.1em;
+            border-left: 4px solid #2980b9;
+            padding-left: 12px;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        .option-label:hover {
+            background-color: #ebf5fb;
+            border-color: #2980b9;
+        }
+        .option-label input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+        
+        #resultado-container {
+            margin-top: 40px;
+            display: none;
+            page-break-inside: avoid;
+        }
+        .resultado-box {
+            padding: 25px;
+            background-color: #ebf5fb;
+            border-radius: 8px 8px 0 0;
+            border-left: 6px solid #2980b9;
+            text-align: center;
+        }
+        .resultado-box h3 { margin-top: 0; color: #154360; font-size: 26px; }
+        
+        .interpretation-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+            border-top: none;
+        }
+        .interpretation-table th, .interpretation-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .interpretation-table th { background-color: #154360; color: #ffffff; font-weight: 600; }
+        
+        .nivel-malo { background-color: #fadbd8 !important; color: #b03a2e; font-weight: bold; }
+        .nivel-regular { background-color: #fdebd0 !important; color: #d35400; font-weight: bold; }
+        .nivel-bueno { background-color: #d4efdf !important; color: #1e8449; font-weight: bold; }
+        .nivel-excelente { background-color: #a9dfbf !important; color: #117a65; font-weight: bold; }
+
+        .clinica-note {
+            margin-top: 20px;
+            color: #34495e;
+            font-size: 0.9em;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #7f8c8d;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        button {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .btn-calc { background-color: #2980b9; }
+        .btn-calc:hover { background-color: #1f618d; }
+        .btn-pdf { background-color: #27ae60; display: none; }
+        .btn-print { background-color: #7f8c8d; display: none; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
+            .actions, .version-tag { display: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="documento-area">
+    <div class="version-tag">Kujala AKPS - Creado por Klgo. Ociel Muñoz</div>
+    <h1>Escala de Kujala (AKPS)</h1>
+    <div class="subtitle">Evaluación de Dolor Anterior de Rodilla y Síndrome Patelofemoral</div>
+    
+    <div class="patient-info">
+        <div class="input-group">
+            <label>Nombre y Apellido</label>
+            <input type="text" id="nombrePaciente" placeholder="Nombre completo">
+        </div>
+        <div class="input-group">
+            <label>Fecha de Evaluación</label>
+            <input type="date" id="fechaEval">
+        </div>
+    </div>
+
+    <div class="instrucciones">
+        <strong>Cuándo aplicarla:</strong> Pacientes con dolor anterior de rodilla, Síndrome de Dolor Patelofemoral (SDPF), condromalacia patelar o dolor asociado a subir/bajar escaleras y posiciones mantenidas.<br>
+        <strong>Instrucciones:</strong> Marque <strong>solo una</strong> opción en cada categoría que mejor describa la situación actual de su rodilla.
+    </div>
+
+    <div id="cuestionario-container"></div>
+
+    <div id="resultado-container">
+        <div class="resultado-box">
+            <h3 id="res-score">Puntuación Total: 0 / 100</h3>
+            <p id="res-texto" style="margin-bottom:0; font-size:1.1em;"></p>
+        </div>
+        
+        <table class="interpretation-table">
+            <thead>
+                <tr>
+                    <th>Puntuación</th>
+                    <th>Nivel de Función Patelofemoral</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="fila-malo">
+                    <td>Menos de 65 puntos</td>
+                    <td>Malo (Alta limitación y dolor)</td>
+                </tr>
+                <tr id="fila-regular">
+                    <td>65 - 84 puntos</td>
+                    <td>Regular</td>
+                </tr>
+                <tr id="fila-bueno">
+                    <td>85 - 94 puntos</td>
+                    <td>Bueno</td>
+                </tr>
+                <tr id="fila-excelente">
+                    <td>95 - 100 puntos</td>
+                    <td>Excelente (Función Normal)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="clinica-note">
+            Nota clínica: Una puntuación de 100 representa una rodilla patelofemoral normal sin síntomas. El Mínimo Cambio Clínicamente Importante (MCID) estimado para pacientes con dolor patelofemoral es de aproximadamente 9 a 10 puntos de mejora.
+        </div>
+    </div>
+
+    <div class="actions" id="seccion-botones">
+        <button class="btn-calc" onclick="calcular()">Calcular y Estratificar</button>
+        <button class="btn-pdf" id="btnDescargar" onclick="guardarPDF()">Descargar PDF</button>
+        <button class="btn-print" id="btnImprimir" onclick="window.print()">Imprimir / Guardar PDF</button>
+    </div>
+</div>
+
+<script>
+    const preguntas = [
+        {
+            titulo: "1. Cojera",
+            opciones: [
+                { texto: "Ninguna", valor: 5 },
+                { texto: "Ligera o periódica", valor: 3 },
+                { texto: "Constante y severa", valor: 0 }
+            ]
+        },
+        {
+            titulo: "2. Apoyo de peso",
+            opciones: [
+                { texto: "Apoyo total sin dolor", valor: 5 },
+                { texto: "Doloroso o requiere bastón/muletas", valor: 3 },
+                { texto: "Imposible apoyar el peso", valor: 0 }
+            ]
+        },
+        {
+            titulo: "3. Caminar",
+            opciones: [
+                { texto: "Ilimitado", valor: 5 },
+                { texto: "Más de 2 km", valor: 3 },
+                { texto: "Entre 1 y 2 km", valor: 2 },
+                { texto: "Imposible", valor: 0 }
+            ]
+        },
+        {
+            titulo: "4. Escaleras",
+            opciones: [
+                { texto: "Sin dificultad", valor: 10 },
+                { texto: "Ligero dolor al bajar", valor: 8 },
+                { texto: "Dolor al bajar y al subir", valor: 5 },
+                { texto: "Imposible", valor: 0 }
+            ]
+        },
+        {
+            titulo: "5. Ponerse en cuclillas",
+            opciones: [
+                { texto: "Sin dificultad", valor: 5 },
+                { texto: "Hacer cuclillas repetidas produce dolor", valor: 4 },
+                { texto: "Dolor cada vez que se hace", valor: 3 },
+                { texto: "Imposible", valor: 0 }
+            ]
+        },
+        {
+            titulo: "6. Correr",
+            opciones: [
+                { texto: "Ilimitado", valor: 10 },
+                { texto: "Ligero dolor tras más de 2 km", valor: 8 },
+                { texto: "Ligero dolor tras menos de 2 km", valor: 6 },
+                { texto: "Dolor severo que limita", valor: 3 },
+                { texto: "Imposible", valor: 0 }
+            ]
+        },
+        {
+            titulo: "7. Saltar",
+            opciones: [
+                { texto: "Sin dificultad", valor: 10 },
+                { texto: "Ligera dificultad", valor: 7 },
+                { texto: "Dolor constante", valor: 2 },
+                { texto: "Imposible", valor: 0 }
+            ]
+        },
+        {
+            titulo: "8. Estar sentado por mucho tiempo (con rodillas a 90º)",
+            opciones: [
+                { texto: "Sin dolor", valor: 10 },
+                { texto: "Dolor después de hacer ejercicio", valor: 8 },
+                { texto: "Dolor constante", valor: 6 },
+                { texto: "El dolor me obliga a estirar la pierna", valor: 0 }
+            ]
+        },
+        {
+            titulo: "9. Dolor",
+            opciones: [
+                { texto: "Ninguno", valor: 10 },
+                { texto: "Ligero y ocasional", valor: 8 },
+                { texto: "El dolor interfiere para dormir", valor: 6 },
+                { texto: "Ocasionalmente severo", valor: 3 },
+                { texto: "Severo y constante", valor: 0 }
+            ]
+        },
+        {
+            titulo: "10. Inflamación / Hinchazón",
+            opciones: [
+                { texto: "Ninguna", valor: 10 },
+                { texto: "Tras ejercicio severo", valor: 8 },
+                { texto: "Tras ejercicio moderado o diario", valor: 6 },
+                { texto: "Cada tarde o mañana", valor: 2 },
+                { texto: "Constante", valor: 0 }
+            ]
+        },
+        {
+            titulo: "11. Movimientos anormales de rótula (Ej. sensación de que se sale)",
+            opciones: [
+                { texto: "Ninguno", valor: 10 },
+                { texto: "Ocasional durante el deporte", valor: 8 },
+                { texto: "Ocasional en actividades diarias", valor: 6 },
+                { texto: "Al menos un episodio documentado", valor: 2 },
+                { texto: "Más de dos episodios", valor: 0 }
+            ]
+        },
+        {
+            titulo: "12. Atrofia (pérdida de masa muscular) en el muslo",
+            opciones: [
+                { texto: "Ninguna", valor: 5 },
+                { texto: "Ligera", valor: 3 },
+                { texto: "Severa", valor: 0 }
+            ]
+        },
+        {
+            titulo: "13. Déficit de flexión de rodilla",
+            opciones: [
+                { texto: "Ninguno", valor: 5 },
+                { texto: "Ligero", valor: 3 },
+                { texto: "Severo", valor: 0 }
+            ]
+        }
+    ];
+
+    const container = document.getElementById('cuestionario-container');
+    document.getElementById('fechaEval').valueAsDate = new Date();
+
+    function render() {
+        preguntas.forEach((q, i) => {
+            let div = document.createElement('div');
+            div.className = 'question-block';
+            let html = `<div class="question-title">${q.titulo}</div><div class="options-grid">`;
+            
+            q.opciones.forEach((opt, j) => {
+                html += `
+                    <label class="option-label">
+                        <input type="radio" name="q${i}" value="${opt.valor}">
+                        ${opt.texto} <span style="color:#bdc3c7; margin-left:5px; font-size:0.8em;">(${opt.valor} pts)</span>
+                    </label>
+                `;
+            });
+            html += `</div>`;
+            div.innerHTML = html;
+            container.appendChild(div);
+        });
+    }
+
+    function calcular() {
+        let score = 0;
+        let count = 0;
+
+        for(let i = 0; i < preguntas.length; i++) {
+            let sel = document.querySelector(`input[name="q${i}"]:checked`);
+            if (sel) {
+                score += parseInt(sel.value);
+                count++;
+            }
+        }
+
+        if (count < 13) {
+            alert("Por favor, responda a las 13 categorías para calcular la puntuación total exacta del Kujala.");
+            return;
+        }
+
+        document.getElementById('fila-malo').className = '';
+        document.getElementById('fila-regular').className = '';
+        document.getElementById('fila-bueno').className = '';
+        document.getElementById('fila-excelente').className = '';
+
+        let textoInter = "";
+        
+        if (score < 65) {
+            textoInter = "Función Patelofemoral Mala";
+            document.getElementById('fila-malo').classList.add('nivel-malo');
+        } else if (score <= 84) {
+            textoInter = "Función Patelofemoral Regular";
+            document.getElementById('fila-regular').classList.add('nivel-regular');
+        } else if (score <= 94) {
+            textoInter = "Función Patelofemoral Buena";
+            document.getElementById('fila-bueno').classList.add('nivel-bueno');
+        } else {
+            textoInter = "Función Patelofemoral Excelente";
+            document.getElementById('fila-excelente').classList.add('nivel-excelente');
+        }
+
+        document.getElementById('res-score').innerText = `Puntuación Total: ${score} / 100`;
+        document.getElementById('res-texto').innerHTML = `<strong>Diagnóstico Funcional:</strong> ${textoInter}`;
+
+        const resContainer = document.getElementById('resultado-container');
+        resContainer.style.display = "block";
+        document.getElementById('btnDescargar').style.display = "block";
+        document.getElementById('btnImprimir').style.display = "block";
+        
+        resContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    async function guardarPDF() {
+        window.scrollTo(0, 0);
+
+        const nombre = document.getElementById('nombrePaciente').value.trim() || "paciente";
+        const fecha = document.getElementById('fechaEval').value;
+        const filename = `${fecha}_kujala_${nombre.toLowerCase().replace(/\s+/g, '')}.pdf`;
+        
+        const element = document.getElementById('documento-area');
+        const buttons = document.getElementById('seccion-botones');
+        buttons.style.display = 'none';
+
+        const opt = {
+            margin: [15, 15, 15, 15],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, scrollY: 0, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } catch (e) {
+            console.error("PDF Error:", e);
+            alert("Error al generar el PDF. Usa el botón 'Imprimir / Guardar PDF'.");
+        } finally {
+            buttons.style.display = 'flex';
+        }
+    }
+
+    render();
+</script>
+
+</body>
+</html>
