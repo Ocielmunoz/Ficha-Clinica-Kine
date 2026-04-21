@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repositorio- Escala de Lysholm</title>
+    <title>Zenter - Escala de Lysholm</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body {
@@ -28,10 +28,11 @@
             right: 20px;
             font-size: 11px;
             font-weight: bold;
-            color: #95a5a6;
-            background: #f8f9fa;
-            padding: 4px 8px;
+            color: #7f8c8d;
+            background: #f4f6f6;
+            padding: 6px 10px;
             border-radius: 4px;
+            border: 1px solid #e5e8e8;
         }
         h1 {
             text-align: center;
@@ -155,7 +156,6 @@
         }
         .interpretation-table th { background-color: #154360; color: #ffffff; font-weight: 600; }
         
-        /* Clases de resaltado para la tabla */
         .nivel-malo { background-color: #fadbd8 !important; color: #b03a2e; font-weight: bold; }
         .nivel-regular { background-color: #fdebd0 !important; color: #d35400; font-weight: bold; }
         .nivel-bueno { background-color: #d4efdf !important; color: #1e8449; font-weight: bold; }
@@ -204,7 +204,7 @@
 <body>
 
 <div class="container" id="documento-area">
-    <div class="version-tag">Lysholm - Creado por klgo. Ociel Muñoz</div>
+    <div class="version-tag">Lysholm - Creado por Klgo. Ociel Muñoz</div>
     <h1>Escala de Puntuación de Lysholm</h1>
     <div class="subtitle">Evaluación Específica de Inestabilidad y Lesión de Rodilla</div>
     
@@ -241,8 +241,8 @@
             </thead>
             <tbody>
                 <tr id="fila-malo">
-                    <td>< 65 puntos</td>
-                    <td>Malo (Alta limitación funcional)</td>
+                    <td>Menos de 65 puntos</td>
+                    <td>Malo (Alta limitación)</td>
                 </tr>
                 <tr id="fila-regular">
                     <td>65 - 83 puntos</td>
@@ -253,7 +253,7 @@
                     <td>Bueno</td>
                 </tr>
                 <tr id="fila-excelente">
-                    <td>> 90 puntos</td>
+                    <td>Más de 90 puntos</td>
                     <td>Excelente</td>
                 </tr>
             </tbody>
@@ -267,12 +267,11 @@
     <div class="actions" id="seccion-botones">
         <button class="btn-calc" onclick="calcular()">Calcular y Estratificar</button>
         <button class="btn-pdf" id="btnDescargar" onclick="guardarPDF()">Descargar PDF</button>
-        <button class="btn-print" id="btnImprimir" onclick="window.print()">Imprimir / Guardar PDF (Nativo)</button>
+        <button class="btn-print" id="btnImprimir" onclick="window.print()">Imprimir / Guardar PDF</button>
     </div>
 </div>
 
 <script>
-    // La escala de Lysholm tiene puntajes específicos para cada respuesta
     const preguntas = [
         {
             titulo: "1. Cojera",
@@ -316,7 +315,7 @@
             opciones: [
                 { texto: "Ninguno", valor: 25 },
                 { texto: "Inconstante y ligero durante el ejercicio fuerte", valor: 20 },
-                { texto: "Marcado durante el ejercicio fuerte", valor: 15 },
+                { texto: "Marcado durante el ejercicio fuerte", Guvalor: 15 },
                 { texto: "Marcado después de caminar más de 2 km", valor: 10 },
                 { texto: "Marcado después de caminar menos de 2 km", valor: 5 },
                 { texto: "Dolor constante", valor: 0 }
@@ -391,7 +390,6 @@
             return;
         }
 
-        // Limpiar filas de la tabla
         document.getElementById('fila-malo').className = '';
         document.getElementById('fila-regular').className = '';
         document.getElementById('fila-bueno').className = '';
@@ -407,4 +405,55 @@
             document.getElementById('fila-regular').classList.add('nivel-regular');
         } else if (score <= 90) {
             textoInter = "Función Buena";
-            document.getElementById('fila-bueno').classList.
+            document.getElementById('fila-bueno').classList.add('nivel-bueno');
+        } else {
+            textoInter = "Función Excelente";
+            document.getElementById('fila-excelente').classList.add('nivel-excelente');
+        }
+
+        document.getElementById('res-score').innerText = `Puntuación Total: ${score} / 100`;
+        document.getElementById('res-texto').innerHTML = `<strong>Diagnóstico Funcional:</strong> ${textoInter}`;
+
+        const resContainer = document.getElementById('resultado-container');
+        resContainer.style.display = "block";
+        document.getElementById('btnDescargar').style.display = "block";
+        document.getElementById('btnImprimir').style.display = "block";
+        
+        resContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    async function guardarPDF() {
+        window.scrollTo(0, 0);
+
+        const nombre = document.getElementById('nombrePaciente').value.trim() || "paciente";
+        const fecha = document.getElementById('fechaEval').value;
+        const filename = `${fecha}_lysholm_${nombre.toLowerCase().replace(/\s+/g, '')}.pdf`;
+        
+        const element = document.getElementById('documento-area');
+        const buttons = document.getElementById('seccion-botones');
+        buttons.style.display = 'none';
+
+        const opt = {
+            margin: [15, 15, 15, 15],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, scrollY: 0, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } catch (e) {
+            console.error("PDF Error:", e);
+            alert("Error al generar el PDF. Usa el botón 'Imprimir / Guardar PDF (Nativo)'.");
+        } finally {
+            buttons.style.display = 'flex';
+        }
+    }
+
+    render();
+</script>
+
+</body>
+</html>
