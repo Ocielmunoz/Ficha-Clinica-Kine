@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenter - Índice WOMAC</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .version-tag {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #7f8c8d;
+            background: #f4f6f6;
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #e5e8e8;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 35px;
+            font-size: 16px;
+        }
+        .patient-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+        .input-group input {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+        .instrucciones {
+            background-color: #fdedec;
+            color: #7b241c;
+            padding: 15px;
+            border-left: 5px solid #c0392b;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .section-title {
+            background-color: #c0392b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin: 35px 0 20px 0;
+            font-size: 1.3em;
+            box-shadow: 0 4px 6px rgba(192, 57, 43, 0.2);
+        }
+        .question-block {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #e5e8e8;
+            border-radius: 8px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        .question-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2c3e50;
+            font-size: 1.05em;
+        }
+        .likert-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .likert-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            padding: 10px 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        .likert-label:hover {
+            background-color: #fdf2e9;
+            border-color: #c0392b;
+        }
+        .likert-label input[type="radio"] {
+            margin-bottom: 8px;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+        
+        #resultado-container {
+            margin-top: 40px;
+            display: none;
+            page-break-inside: avoid;
+        }
+        .resultado-box {
+            background-color: #fdedec;
+            border-radius: 8px;
+            border-left: 6px solid #c0392b;
+            padding: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .res-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-bottom: 3px solid #c0392b;
+        }
+        .res-section.global {
+            background: #c0392b;
+            color: white;
+            border-bottom: none;
+        }
+        .res-section.global .res-title { color: #fdf2e9; }
+        .res-section.global .res-score { color: white; }
+
+        .res-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+        .res-score {
+            font-size: 26px;
+            font-weight: bold;
+            color: #c0392b;
+        }
+        
+        .interpretation-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+        }
+        .interpretation-table th, .interpretation-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .interpretation-table th { background-color: #2c3e50; color: #ffffff; font-weight: 600; }
+        
+        .nivel-leve { background-color: #d4efdf !important; color: #1e8449; font-weight: bold; }
+        .nivel-moderado { background-color: #fdebd0 !important; color: #d35400; font-weight: bold; }
+        .nivel-severo { background-color: #fadbd8 !important; color: #b03a2e; font-weight: bold; }
+        .nivel-extremo { background-color: #e6b0aa !important; color: #7b241c; font-weight: bold; }
+
+        .clinica-note {
+            margin-top: 20px;
+            color: #34495e;
+            font-size: 0.9em;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #7f8c8d;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        button {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .btn-calc { background-color: #c0392b; }
+        .btn-calc:hover { background-color: #922b21; }
+        .btn-pdf { background-color: #27ae60; display: none; }
+        .btn-print { background-color: #7f8c8d; display: none; }
+
+        @media (max-width: 768px) {
+            .likert-grid { grid-template-columns: 1fr; gap: 5px; }
+            .likert-label { flex-direction: row; text-align: left; padding: 12px; }
+            .likert-label input[type="radio"] { margin-bottom: 0; margin-right: 15px; }
+        }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
+            .actions, .version-tag { display: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="documento-area">
+    <div class="version-tag">WOMAC - Creado por Klgo. Ociel Muñoz</div>
+    <h1>Índice WOMAC</h1>
+    <div class="subtitle">Evaluación de Osteoartritis de Rodilla y Cadera</div>
+    
+    <div class="patient-info">
+        <div class="input-group">
+            <label>Nombre y Apellido</label>
+            <input type="text" id="nombrePaciente" placeholder="Nombre completo">
+        </div>
+        <div class="input-group">
+            <label>Fecha de Evaluación</label>
+            <input type="date" id="fechaEval">
+        </div>
+    </div>
+
+    <div class="instrucciones">
+        <strong>Cuándo aplicarla:</strong> Pacientes adultos mayores, diagnóstico de artrosis (osteoartritis) de cadera o rodilla, y pre/post operatorio de artroplastia (prótesis).<br>
+        <strong>Instrucciones:</strong> Valore la intensidad de sus síntomas durante las <strong>últimas 48 horas</strong> marcando la casilla correspondiente.
+    </div>
+
+    <div id="cuestionario-container"></div>
+
+    <div id="resultado-container">
+        <div class="resultado-box">
+            <div class="res-section">
+                <div class="res-title">Dolor</div>
+                <div class="res-score" id="score-dolor">0%</div>
+            </div>
+            <div class="res-section">
+                <div class="res-title">Rigidez</div>
+                <div class="res-score" id="score-rigidez">0%</div>
+            </div>
+            <div class="res-section">
+                <div class="res-title">Función Física</div>
+                <div class="res-score" id="score-funcion">0%</div>
+            </div>
+            <div class="res-section global">
+                <div class="res-title">Índice Global WOMAC</div>
+                <div class="res-score" id="score-global">0%</div>
+            </div>
+        </div>
+
+        <table class="interpretation-table">
+            <thead>
+                <tr>
+                    <th>Puntuación Global (%)</th>
+                    <th>Nivel de Severidad (Artrosis)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="fila-leve">
+                    <td>0% - 24%</td>
+                    <td>Leve (Poca discapacidad)</td>
+                </tr>
+                <tr id="fila-moderado">
+                    <td>25% - 49%</td>
+                    <td>Moderado</td>
+                </tr>
+                <tr id="fila-severo">
+                    <td>50% - 74%</td>
+                    <td>Severo</td>
+                </tr>
+                <tr id="fila-extremo">
+                    <td>75% - 100%</td>
+                    <td>Extremo (Máxima discapacidad)</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="clinica-note">
+            <strong>Interpretación Clínica:</strong> A diferencia de otras escalas, en el WOMAC <strong>un mayor porcentaje indica PEOR estado de salud</strong> (más dolor y limitación). El cálculo excluye automáticamente las preguntas que el paciente deje en blanco.
+        </div>
+    </div>
+
+    <div class="actions" id="seccion-botones">
+        <button class="btn-calc" onclick="calcular()">Calcular WOMAC</button>
+        <button class="btn-pdf" id="btnDescargar" onclick="guardarPDF()">Descargar PDF</button>
+        <button class="btn-print" id="btnImprimir" onclick="window.print()">Imprimir / Guardar PDF</button>
+    </div>
+</div>
+
+<script>
+    const opcionesGlobales = ["Ninguno", "Leve", "Moderado", "Severo", "Extremo"];
+
+    const dataWOMAC = [
+        {
+            id: "dolor",
+            titulo: "Subescala A: Dolor",
+            preguntas: [
+                "1. Caminando por una superficie plana.",
+                "2. Subiendo o bajando escaleras.",
+                "3. Por la noche en la cama.",
+                "4. Estando sentado o acostado.",
+                "5. Estando de pie."
+            ]
+        },
+        {
+            id: "rigidez",
+            titulo: "Subescala B: Rigidez",
+            preguntas: [
+                "1. Rigidez al despertarse por la mañana.",
+                "2. Rigidez más tarde en el día, después de estar sentado, acostado o descansando."
+            ]
+        },
+        {
+            id: "funcion",
+            titulo: "Subescala C: Función Física",
+            preguntas: [
+                "1. Bajando escaleras.",
+                "2. Subiendo escaleras.",
+                "3. Levantándose de una silla.",
+                "4. Estando de pie.",
+                "5. Inclinándose hacia el suelo (agacharse).",
+                "6. Caminando por una superficie plana.",
+                "7. Entrando o saliendo de un coche / autobús.",
+                "8. Yendo de compras.",
+                "9. Poniéndose las medias / calcetines.",
+                "10. Levantándose de la cama.",
+                "11. Quitándose las medias / calcetines.",
+                "12. Estando acostado en la cama.",
+                "13. Entrando o saliendo de la bañera.",
+                "14. Estando sentado.",
+                "15. Sentándose o levantándose del inodoro.",
+                "16. Realizando tareas domésticas pesadas.",
+                "17. Realizando tareas domésticas ligeras."
+            ]
+        }
+    ];
+
+    const container = document.getElementById('cuestionario-container');
+    document.getElementById('fechaEval').valueAsDate = new Date();
+
+    function render() {
+        dataWOMAC.forEach((seccion) => {
+            let html = `<div class="section-title">${seccion.titulo}</div>`;
+            
+            seccion.preguntas.forEach((q, i) => {
+                html += `<div class="question-block">
+                            <div class="question-title">${q}</div>
+                            <div class="likert-grid">`;
+                
+                opcionesGlobales.forEach((optText, valIndex) => {
+                    html += `
+                        <label class="likert-label">
+                            <input type="radio" name="${seccion.id}_${i}" value="${valIndex}">
+                            ${optText}
+                        </label>`;
+                });
+                
+                html += `</div></div>`;
+            });
+            container.innerHTML += html;
+        });
+    }
+
+    function calcular() {
+        let totales = {
+            dolor: { score: 0, count: 0, maxScore: 0 },
+            rigidez: { score: 0, count: 0, maxScore: 0 },
+            funcion: { score: 0, count: 0, maxScore: 0 }
+        };
+
+        let sumaGlobal = 0;
+        let respondidasGlobal = 0;
+
+        dataWOMAC.forEach((seccion) => {
+            seccion.preguntas.forEach((_, i) => {
+                let sel = document.querySelector(`input[name="${seccion.id}_${i}"]:checked`);
+                if (sel) {
+                    let val = parseInt(sel.value);
+                    totales[seccion.id].score += val;
+                    totales[seccion.id].count++;
+                    
+                    sumaGlobal += val;
+                    respondidasGlobal++;
+                }
+            });
+            totales[seccion.id].maxScore = totales[seccion.id].count * 4;
+        });
+
+        if (respondidasGlobal === 0) {
+            alert("Por favor, responda las preguntas antes de calcular.");
+            return;
+        }
+
+        // Calcular porcentajes (0 = Mejor, 100 = Peor)
+        let porcDolor = totales.dolor.count > 0 ? Math.round((totales.dolor.score / totales.dolor.maxScore) * 100) : 0;
+        let porcRigidez = totales.rigidez.count > 0 ? Math.round((totales.rigidez.score / totales.rigidez.maxScore) * 100) : 0;
+        let porcFuncion = totales.funcion.count > 0 ? Math.round((totales.funcion.score / totales.funcion.maxScore) * 100) : 0;
+        let porcGlobal = Math.round((sumaGlobal / (respondidasGlobal * 4)) * 100);
+
+        // Actualizar UI
+        document.getElementById(`score-dolor`).innerText = totales.dolor.count > 0 ? `${porcDolor}%` : "S/D";
+        document.getElementById(`score-rigidez`).innerText = totales.rigidez.count > 0 ? `${porcRigidez}%` : "S/D";
+        document.getElementById(`score-funcion`).innerText = totales.funcion.count > 0 ? `${porcFuncion}%` : "S/D";
+        document.getElementById(`score-global`).innerText = `${porcGlobal}%`;
+
+        // Colorear semáforo invertido (Verde = Bajo, Rojo = Alto)
+        ['dolor', 'rigidez', 'funcion'].forEach(id => {
+            let el = document.getElementById(`score-${id}`);
+            let val = id === 'dolor' ? porcDolor : (id === 'rigidez' ? porcRigidez : porcFuncion);
+            if(totales[id].count > 0) {
+                if(val < 25) el.style.color = "#27ae60"; // Verde
+                else if(val < 50) el.style.color = "#d35400"; // Naranja
+                else el.style.color = "#c0392b"; // Rojo
+            }
+        });
+
+        // Limpiar filas de la tabla
+        document.getElementById('fila-leve').className = '';
+        document.getElementById('fila-moderado').className = '';
+        document.getElementById('fila-severo').className = '';
+        document.getElementById('fila-extremo').className = '';
+
+        // Estratificar Global
+        if (porcGlobal < 25) {
+            document.getElementById('fila-leve').classList.add('nivel-leve');
+        } else if (porcGlobal < 50) {
+            document.getElementById('fila-moderado').classList.add('nivel-moderado');
+        } else if (porcGlobal < 75) {
+            document.getElementById('fila-severo').classList.add('nivel-severo');
+        } else {
+            document.getElementById('fila-extremo').classList.add('nivel-extremo');
+        }
+
+        const resContainer = document.getElementById('resultado-container');
+        resContainer.style.display = "block";
+        document.getElementById('btnDescargar').style.display = "block";
+        document.getElementById('btnImprimir').style.display = "block";
+        
+        resContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    async function guardarPDF() {
+        window.scrollTo(0, 0);
+        const nombre = document.getElementById('nombrePaciente').value.trim() || "paciente";
+        const fecha = document.getElementById('fechaEval').value;
+        const filename = `${fecha}_womac_${nombre.toLowerCase().replace(/\s+/g, '')}.pdf`;
+        
+        const element = document.getElementById('documento-area');
+        const buttons = document.getElementById('seccion-botones');
+        buttons.style.display = 'none';
+
+        const opt = {
+            margin: [15, 15, 15, 15],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, scrollY: 0, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } catch (e) {
+            console.error("PDF Error:", e);
+            alert("Error al generar el PDF. Por favor, usa el botón 'Imprimir / Guardar PDF'.");
+        } finally {
+            buttons.style.display = 'flex';
+        }
+    }
+
+    render();
+</script>
+
+</body>
+</html>
