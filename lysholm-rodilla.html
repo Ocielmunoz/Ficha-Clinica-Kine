@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repositorio- Escala de Lysholm</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .version-tag {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #95a5a6;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 35px;
+            font-size: 16px;
+        }
+        .patient-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+        .input-group input {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+        .instrucciones {
+            background-color: #eaf2f8;
+            color: #2471a3;
+            padding: 15px;
+            border-left: 5px solid #2980b9;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .question-block {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #e5e8e8;
+            border-radius: 8px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        .question-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.1em;
+            border-left: 4px solid #2980b9;
+            padding-left: 12px;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        .option-label:hover {
+            background-color: #ebf5fb;
+            border-color: #2980b9;
+        }
+        .option-label input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+        
+        #resultado-container {
+            margin-top: 40px;
+            display: none;
+            page-break-inside: avoid;
+        }
+        .resultado-box {
+            padding: 25px;
+            background-color: #ebf5fb;
+            border-radius: 8px 8px 0 0;
+            border-left: 6px solid #2980b9;
+            text-align: center;
+        }
+        .resultado-box h3 { margin-top: 0; color: #154360; font-size: 26px; }
+        
+        .interpretation-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+            border-top: none;
+        }
+        .interpretation-table th, .interpretation-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .interpretation-table th { background-color: #154360; color: #ffffff; font-weight: 600; }
+        
+        /* Clases de resaltado para la tabla */
+        .nivel-malo { background-color: #fadbd8 !important; color: #b03a2e; font-weight: bold; }
+        .nivel-regular { background-color: #fdebd0 !important; color: #d35400; font-weight: bold; }
+        .nivel-bueno { background-color: #d4efdf !important; color: #1e8449; font-weight: bold; }
+        .nivel-excelente { background-color: #a9dfbf !important; color: #117a65; font-weight: bold; }
+
+        .clinica-note {
+            margin-top: 20px;
+            color: #34495e;
+            font-size: 0.9em;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #7f8c8d;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        button {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .btn-calc { background-color: #2980b9; }
+        .btn-calc:hover { background-color: #1f618d; }
+        .btn-pdf { background-color: #27ae60; display: none; }
+        .btn-print { background-color: #7f8c8d; display: none; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
+            .actions, .version-tag { display: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="documento-area">
+    <div class="version-tag">Lysholm - Creado por klgo. Ociel Muñoz</div>
+    <h1>Escala de Puntuación de Lysholm</h1>
+    <div class="subtitle">Evaluación Específica de Inestabilidad y Lesión de Rodilla</div>
+    
+    <div class="patient-info">
+        <div class="input-group">
+            <label>Nombre y Apellido</label>
+            <input type="text" id="nombrePaciente" placeholder="Nombre completo">
+        </div>
+        <div class="input-group">
+            <label>Fecha de Evaluación</label>
+            <input type="date" id="fechaEval">
+        </div>
+    </div>
+
+    <div class="instrucciones">
+        <strong>Cuándo aplicarla:</strong> Principalmente en pacientes con lesiones de ligamentos (LCA, LCP) o meniscos, inestabilidad articular y para el seguimiento post-quirúrgico.<br>
+        <strong>Instrucciones:</strong> Marque <strong>solo una</strong> opción en cada categoría que mejor describa la situación actual de su rodilla.
+    </div>
+
+    <div id="cuestionario-container"></div>
+
+    <div id="resultado-container">
+        <div class="resultado-box">
+            <h3 id="res-score">Puntuación Total: 0 / 100</h3>
+            <p id="res-texto" style="margin-bottom:0; font-size:1.1em;"></p>
+        </div>
+        
+        <table class="interpretation-table">
+            <thead>
+                <tr>
+                    <th>Puntuación</th>
+                    <th>Nivel de Función</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="fila-malo">
+                    <td>< 65 puntos</td>
+                    <td>Malo (Alta limitación funcional)</td>
+                </tr>
+                <tr id="fila-regular">
+                    <td>65 - 83 puntos</td>
+                    <td>Regular</td>
+                </tr>
+                <tr id="fila-bueno">
+                    <td>84 - 90 puntos</td>
+                    <td>Bueno</td>
+                </tr>
+                <tr id="fila-excelente">
+                    <td>> 90 puntos</td>
+                    <td>Excelente</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="clinica-note">
+            Nota: Una puntuación de 100 representa una rodilla sin ninguna limitación (función normal). El Mínimo Cambio Clínicamente Importante (MCID) para el Lysholm tras una reconstrucción de LCA suele considerarse alrededor de los 10 puntos.
+        </div>
+    </div>
+
+    <div class="actions" id="seccion-botones">
+        <button class="btn-calc" onclick="calcular()">Calcular y Estratificar</button>
+        <button class="btn-pdf" id="btnDescargar" onclick="guardarPDF()">Descargar PDF</button>
+        <button class="btn-print" id="btnImprimir" onclick="window.print()">Imprimir / Guardar PDF (Nativo)</button>
+    </div>
+</div>
+
+<script>
+    // La escala de Lysholm tiene puntajes específicos para cada respuesta
+    const preguntas = [
+        {
+            titulo: "1. Cojera",
+            opciones: [
+                { texto: "Ninguna", valor: 5 },
+                { texto: "Ligera o periódica", valor: 3 },
+                { texto: "Constante y severa", valor: 0 }
+            ]
+        },
+        {
+            titulo: "2. Apoyo",
+            opciones: [
+                { texto: "Ninguno", valor: 5 },
+                { texto: "Uso de bastón o muletas", valor: 2 },
+                { texto: "Imposible apoyar el peso", valor: 0 }
+            ]
+        },
+        {
+            titulo: "3. Bloqueo",
+            opciones: [
+                { texto: "Ninguno", valor: 15 },
+                { texto: "Sensación de enganche pero sin bloqueo", valor: 10 },
+                { texto: "Bloqueo ocasional", valor: 6 },
+                { texto: "Bloqueo frecuente", valor: 2 },
+                { texto: "Rodilla bloqueada en el momento actual", valor: 0 }
+            ]
+        },
+        {
+            titulo: "4. Inestabilidad / Fallo de la rodilla",
+            opciones: [
+                { texto: "Nunca falla", valor: 25 },
+                { texto: "Raramente durante actividad deportiva", valor: 20 },
+                { texto: "Frecuentemente durante actividad deportiva", valor: 15 },
+                { texto: "Ocasionalmente en actividades de la vida diaria", valor: 10 },
+                { texto: "Frecuentemente en actividades de la vida diaria", valor: 5 },
+                { texto: "Falla a cada paso", valor: 0 }
+            ]
+        },
+        {
+            titulo: "5. Dolor",
+            opciones: [
+                { texto: "Ninguno", valor: 25 },
+                { texto: "Inconstante y ligero durante el ejercicio fuerte", valor: 20 },
+                { texto: "Marcado durante el ejercicio fuerte", valor: 15 },
+                { texto: "Marcado después de caminar más de 2 km", valor: 10 },
+                { texto: "Marcado después de caminar menos de 2 km", valor: 5 },
+                { texto: "Dolor constante", valor: 0 }
+            ]
+        },
+        {
+            titulo: "6. Inflamación",
+            opciones: [
+                { texto: "Ninguna", valor: 10 },
+                { texto: "Tras ejercicio fuerte", valor: 6 },
+                { texto: "Tras ejercicio diario u ordinario", valor: 2 },
+                { texto: "Constante", valor: 0 }
+            ]
+        },
+        {
+            titulo: "7. Subir / Bajar escaleras",
+            opciones: [
+                { texto: "Sin problema", valor: 10 },
+                { texto: "Ligera alteración (bajando)", valor: 6 },
+                { texto: "Peldaño a peldaño", valor: 2 },
+                { texto: "Imposible", valor: 0 }
+            ]
+        },
+        {
+            titulo: "8. Ponerse en cuclillas",
+            opciones: [
+                { texto: "Sin problema", valor: 5 },
+                { texto: "Ligera alteración", valor: 4 },
+                { texto: "No más de 90 grados", valor: 2 },
+                { texto: "Imposible", valor: 0 }
+            ]
+        }
+    ];
+
+    const container = document.getElementById('cuestionario-container');
+    document.getElementById('fechaEval').valueAsDate = new Date();
+
+    function render() {
+        preguntas.forEach((q, i) => {
+            let div = document.createElement('div');
+            div.className = 'question-block';
+            let html = `<div class="question-title">${q.titulo}</div><div class="options-grid">`;
+            
+            q.opciones.forEach((opt, j) => {
+                html += `
+                    <label class="option-label">
+                        <input type="radio" name="q${i}" value="${opt.valor}">
+                        ${opt.texto} <span style="color:#bdc3c7; margin-left:5px; font-size:0.8em;">(${opt.valor} pts)</span>
+                    </label>
+                `;
+            });
+            html += `</div>`;
+            div.innerHTML = html;
+            container.appendChild(div);
+        });
+    }
+
+    function calcular() {
+        let score = 0;
+        let count = 0;
+
+        for(let i = 0; i < preguntas.length; i++) {
+            let sel = document.querySelector(`input[name="q${i}"]:checked`);
+            if (sel) {
+                score += parseInt(sel.value);
+                count++;
+            }
+        }
+
+        if (count < 8) {
+            alert("Por favor, responda a las 8 categorías para calcular la puntuación total exacta.");
+            return;
+        }
+
+        // Limpiar filas de la tabla
+        document.getElementById('fila-malo').className = '';
+        document.getElementById('fila-regular').className = '';
+        document.getElementById('fila-bueno').className = '';
+        document.getElementById('fila-excelente').className = '';
+
+        let textoInter = "";
+        
+        if (score < 65) {
+            textoInter = "Función Mala";
+            document.getElementById('fila-malo').classList.add('nivel-malo');
+        } else if (score <= 83) {
+            textoInter = "Función Regular";
+            document.getElementById('fila-regular').classList.add('nivel-regular');
+        } else if (score <= 90) {
+            textoInter = "Función Buena";
+            document.getElementById('fila-bueno').classList.
